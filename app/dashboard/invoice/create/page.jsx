@@ -37,6 +37,46 @@ const CreateInvoice = () => {
         setEmails(updatedEmails);
     };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault(); // Mencegah refresh halaman
+        const invoiceData = {
+            invoice_date: document.getElementById('invoice_date').value,
+            client_name: document.getElementById('client_name').value,
+            client_address: document.getElementById('client_address').value,
+            forwarding_vessel: document.getElementById('forwarding_vessel').value,
+            port_of_discharge: document.getElementById('port_of_discharge').value,
+            port_of_loading: document.getElementById('port_of_loading').value,
+            bill_lading: document.getElementById('bill_lading').value,
+            shipper: document.getElementById('shipper').value,
+            consignee: document.getElementById('consignee').value,
+            measurement: document.getElementById('measurement').value,
+            cargo_description: document.getElementById('cargo_description').value,
+            etd: document.getElementById('etd').value,
+            eta: document.getElementById('eta').value,
+            admin_id: document.getElementById('admin_id').value,
+            charges,
+            emails,
+        };
+    
+        try {
+            const response = await fetch('/api/invoice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(invoiceData),
+            });
+            const result = await response.json();
+            if (response.ok) {
+                alert('Invoice created successfully! ID: ' + result.id);
+                window.location.href = '/dashboard/invoice/list'; // Redirect ke halaman daftar invoice
+            } else {
+                alert('Failed to create invoice: ' + result.error);
+            }
+        } catch (error) {
+            console.error('Error submitting invoice:', error);
+            alert('An error occurred while creating the invoice.');
+        }
+    };
+    
 
     return (
         <div className={styles.container}>
@@ -149,6 +189,14 @@ const CreateInvoice = () => {
                             <input type="date" id="eta" name="eta" />
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <label>Admin id</label>
+                        </td>
+                        <td>
+                            <input type="text" id="admin_id" name="admin_id" />
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <br/>
@@ -245,6 +293,11 @@ const CreateInvoice = () => {
 <button type="button" className={styles.addBtn} onClick={addEmailRow}>
     Add Email
 </button>
+<br/><br/>
+<button type="submit" className={styles.submitBtn} onClick={handleSubmit}>
+    Submit Invoice
+</button>
+
 
         </div>
     )
