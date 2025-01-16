@@ -66,7 +66,7 @@ const CreateInvoice = () => {
             });
             const result = await response.json();
             if (response.ok) {
-                alert('Invoice created successfully! ID: ' + result.id);
+                alert('Invoice with number ' + result.invoice_number + ' created successfully');
                 window.location.href = '/dashboard/invoice/list'; // Redirect ke halaman daftar invoice
             } else {
                 alert('Failed to create invoice: ' + result.error);
