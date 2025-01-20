@@ -19,11 +19,11 @@ export default function VerifyEmail() {
 
             const data = await response.json();
 
-            if (response.ok) {
-                // Navigasi menggunakan window.location
-                window.location.href = `/verify-otp?invoice_id=${invoiceId}&email=${encodeURIComponent(email)}`;
+            if (response.ok && data.success) {
+                // Jika email valid, arahkan ke halaman validasi
+                window.location.href = `/client/validationPage?invoice_id=${invoiceId}`;
             } else {
-                setError(data.error || 'Terjadi kesalahan');
+                setError(data.error || 'Email tidak valid');
             }
         } catch (err) {
             console.error('Error:', err);
