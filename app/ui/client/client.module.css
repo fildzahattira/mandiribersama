@@ -1,0 +1,89 @@
+/* Gaya untuk ikon valid */
+.icon {
+    color: #28a745; /* Warna hijau untuk ikon valid */
+    font-size: 3rem; /* Ukuran ikon */
+    margin-bottom: 20px; /* Jarak antara ikon dan judul */
+}
+
+/* Gaya untuk container */
+.container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+    margin: 20px auto; /* Pusatkan container */
+}
+
+/* Gaya untuk judul */
+.title {
+    margin-bottom: 20px;
+    font-size: 1.5rem; /* Ukuran font lebih kecil untuk HP */
+    color: #333;
+}
+
+/* Gaya untuk detail invoice */
+.details {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.details p {
+    margin: 10px 0;
+    font-size: 1rem;
+    color: #666;
+}
+
+.details strong {
+    color: #333;
+}
+
+/* Gaya untuk tombol */
+.button {
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%; /* Tombol memenuhi lebar container */
+}
+
+.button:hover {
+    background-color: #0056b3;
+}
+
+/* Gaya untuk pesan error */
+.error {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+/* Media Queries untuk layar kecil (HP) */
+@media (max-width: 480px) {
+    .icon {
+        font-size: 2.5rem; /* Ukuran ikon lebih kecil untuk HP */
+    }
+
+    .title {
+        font-size: 1.2rem; /* Ukuran font lebih kecil untuk HP */
+    }
+
+    .details p {
+        font-size: 0.9rem;
+    }
+
+    .button {
+        font-size: 0.9rem;
+        padding: 8px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+}
