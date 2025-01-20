@@ -24,6 +24,50 @@
     color: #333;
 }
 
+/* Gaya untuk form */
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Jarak antara elemen di dalam form */
+    margin-bottom: 20px; /* Jarak antara form dan elemen lainnya */
+}
+
+/* Gaya untuk input di dalam form */
+.form input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form input:focus {
+    border-color: #007bff; /* Warna biru saat input aktif */
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3); /* Efek glow saat input aktif */
+}
+
+.form input::placeholder {
+    color: #999; /* Warna placeholder */
+}
+
+/* Gaya untuk tombol di dalam form */
+.form button {
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form button:hover {
+    background-color: #0056b3; /* Warna biru lebih gelap saat hover */
+}
+
 /* Gaya untuk detail invoice */
 .details {
     text-align: left;
@@ -85,5 +129,15 @@
 
     .container {
         padding: 15px;
+    }
+
+    .form input {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+
+    .form button {
+        padding: 8px;
+        font-size: 0.9rem;
     }
 }
