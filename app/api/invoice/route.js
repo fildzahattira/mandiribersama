@@ -352,7 +352,7 @@ export async function POST(request) {
         // await db.query(sqlUpdateQR, [qrUrl, invoiceId]);
 
             // Generate QR code URL
-            const qrUrl = `http://localhost:3000/api/verifyEmail?invoice_id=${invoiceId}`; // Arahkan ke halaman verifikasi email
+            const qrUrl = `http://localhost:3000/client/verifyEmail?invoice_id=${invoiceId}`; // Arahkan ke halaman verifikasi email
 
             // Save QR code URL to database
             const sqlUpdateQR = "UPDATE invoice SET qr_code = ? WHERE invoice_id = ?";

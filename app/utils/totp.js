@@ -15,8 +15,8 @@ function dynamicTruncation(hmacHash) {
     return binary & 0x7fffffff; // Ambil 31 bit terakhir
 }
 
-// Fungsi Generate TOTP
-export function generateTOTP(secret, step = 30, digits = 6) {
+// Fungsi Generate TOTP (step diubah menjadi 60 detik)
+export function generateTOTP(secret, step = 60, digits = 6) {
     const timestamp = Math.floor(Date.now() / 1000); // Waktu saat ini dalam detik
     let counter = Math.floor(timestamp / step); // Hitung counter (gunakan `let` agar bisa diubah)
     const message = Buffer.alloc(8); // Buffer untuk counter
@@ -32,8 +32,8 @@ export function generateTOTP(secret, step = 30, digits = 6) {
     return otp.toString().padStart(digits, '0'); // Format OTP menjadi 6 digit
 }
 
-// Fungsi Verifikasi TOTP
-export function verifyTOTP(secret, userOtp, step = 30, digits = 6) {
+// Fungsi Verifikasi TOTP (step diubah menjadi 60 detik)
+export function verifyTOTP(secret, userOtp, step = 60, digits = 6) {
     const generatedOtp = generateTOTP(secret, step, digits);
     return generatedOtp === userOtp; // Bandingkan OTP yang dihasilkan dengan OTP pengguna
 }
