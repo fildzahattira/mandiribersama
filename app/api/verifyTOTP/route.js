@@ -1,9 +1,9 @@
-// app/api/verifyOtp/route.js
-import { verifyTOTP } from 'app/utils/totp'; // Pastikan path impor benar
+import { verifyTOTP } from 'app/utils/totp';
 
 export async function POST(request) {
     try {
-        const { secret, otp } = await request.json();
+        const { otp } = await request.json(); // Hanya menerima `otp` dari frontend
+        const secret = process.env.TOTP_SECRET; // Ambil `secret` dari environment variable
 
         // Validasi input
         if (!secret || !otp) {

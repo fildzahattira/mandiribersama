@@ -1,12 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation'; // Ganti useParams dengan useSearchParams
+import { useSearchParams } from 'next/navigation'; // Ambil useSearchParams untuk ambil query string
 import { MdCheckCircle } from 'react-icons/md';
 import styles from '@/app/ui/client/client.module.css';
 
 export default function ValidationSuccess() {
-    const router = useRouter();
     const searchParams = useSearchParams(); // Gunakan useSearchParams untuk mengambil query string
     const invoiceId = searchParams.get('invoice_id'); // Ambil invoice_id dari query string
     const [invoice, setInvoice] = useState(null);
@@ -37,9 +36,6 @@ export default function ValidationSuccess() {
             <div className={styles.container}>
                 <h1 className={styles.title}>Error</h1>
                 <p className={styles.error}>{error}</p>
-                <button onClick={() => router.push('/')} className={styles.button}>
-                    Kembali ke Beranda
-                </button>
             </div>
         );
     }
@@ -62,9 +58,6 @@ export default function ValidationSuccess() {
                 <p><strong>Nama Klien:</strong> {invoice.client_name}</p>
                 <p><strong>Total:</strong> IDR {invoice.charges.reduce((sum, charge) => sum + Number(charge.amount), 0).toLocaleString()}</p>
             </div>
-            <button onClick={() => router.push('/')} className={styles.button}>
-                Kembali ke Beranda
-            </button>
         </div>
     );
 }
