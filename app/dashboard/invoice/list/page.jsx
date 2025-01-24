@@ -113,8 +113,22 @@ const handleDownloadPDF = async () => {
   let startY = 10; // Posisi awal untuk menulis data
 
   // Tambahkan logo di sebelah kiri
-  const logoUrl = './public/logo.jpeg'; // Ganti dengan path atau URL logo
-  doc.addImage(logoUrl, 'jpeg', margin, 20, 30, 30); // (x, y, width, height)
+  const logoUrl = '/logo.jpeg'; // Replace with the path or URL of the logo
+  const marginLogo = 15; // Left margin of the document
+  const newWidth = 75; // Desired width for the image in the PDF
+
+  // Original dimensions of the image (replace with the actual dimensions of your image)
+  const originalWidth = 300; // Original width of the image in pixels
+  const originalHeight = 100; // Original height of the image in pixels
+
+  // Calculate the aspect ratio of the original image
+  const aspectRatio = originalWidth / originalHeight;
+
+  // Calculate the new height based on the aspect ratio
+  const newHeight = newWidth / aspectRatio;
+
+  // Add the image to the PDF with the correct dimensions
+  doc.addImage(logoUrl, 'jpeg', marginLogo, 20, newWidth, newHeight);
 
   // Fungsi untuk menambahkan teks dengan pengecekan batas halaman
   const addText = (text, x, y, fontSize = 10, fontStyle = 'normal', lineHeight = 7) => {
@@ -124,24 +138,33 @@ const handleDownloadPDF = async () => {
     return y + lineHeight; // Kembalikan posisi Y baru dengan jarak antar baris yang lebih rapat
   };
 
-  // Header (Alamat dan Kontak di sebelah kanan)
-  const addressX = 110; // Posisi X untuk alamat dan kontak (sebelah kanan)
-  startY = addText("JL. Sanggar No 31-33", addressX, startY, 10);
-  startY = addText("Surabaya (60175)", addressX, startY, 10);
-  startY = addText("Telp. : +6231-73690229", addressX, startY, 10);
-  startY = addText("Fax. : +6231-3576864", addressX, startY, 10);
-  startY = addText("INDONESIA", addressX, startY, 10);
-  startY += 7; // Beri jarak tambahan
+  // Header (Alamat dan Kontak di pojok kanan garis)
+  const addressX = doc.internal.pageSize.width - margin - 40; // Posisi X untuk alamat dan kontak (pojok kanan)
+  let headerY = 20; // Posisi Y untuk header, sejajar dengan logo
+  headerY = addText("JL. Sanggar No 31-33", addressX, headerY, 10);
+  headerY = addText("Surabaya (60175)", addressX, headerY, 10);
+  headerY = addText("Telp. : +6231-73690229", addressX, headerY, 10);
+  headerY = addText("Fax. : +6231-3576864", addressX, headerY, 10);
+  headerY = addText("INDONESIA", addressX, headerY, 10);
 
-  // Judul Invoice
-  startY = addText("# Invoice", margin, startY, 14, 'bold', 8); // Judul lebih besar, jarak sedikit lebih longgar
-  startY += 7; // Beri jarak tambahan
+  // Tambahkan garis horizontal di bawah header
+  doc.setLineWidth(0.5); // Ketebalan garis
+  doc.line(margin, headerY + 5, doc.internal.pageSize.width - margin, headerY + 5); // (x1, y1, x2, y2)
+
+  // Judul Invoice (Ditempatkan di tengah)
+  const invoiceTitle = "Invoice";
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  const textWidth = doc.getTextWidth(invoiceTitle); // Hitung lebar teks
+  const centerX = (doc.internal.pageSize.width - textWidth) / 2; // Hitung posisi tengah
+  startY = headerY + 15; // Tambahkan jarak sebelum tulisan "Invoice" (dari 10 menjadi 15)
+  doc.text(invoiceTitle, centerX, startY); // Tambahkan teks di tengah
 
   // Bill To dan Invoice Details
   const billToX = margin; // Posisi X untuk Bill To
   const invoiceDetailsX = 110; // Posisi X untuk Invoice Details
 
-  startY = addText("Bill To:", billToX, startY, 10, 'bold');
+  startY = addText("Bill To:", billToX, startY + 10, 10, 'bold'); // Jarak tambahan sebelum Bill To
   startY = addText(selectedInvoice.client_name, billToX, startY, 10);
   startY = addText(selectedInvoice.client_address, billToX, startY, 10);
 
@@ -207,7 +230,7 @@ const handleDownloadPDF = async () => {
   startY += 7; // Beri jarak tambahan
 
   // Authorized Signature
-  startY = addText("Authorized Signature", margin + 100, startY, 10, 'bold');
+  // startY = addText("Authorized Signature", margin + 100, startY, 10, 'bold');
   startY = addText("CV. MANDIRI BERSAMA", margin + 100, startY, 10);
 
   // Generate QR Code
