@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import styles from '@/app/ui/dashboard/invoice/invoice.module.css';
 import Search from "@/app/ui/dashboard/search/search";
-// import Pagination from "@/app/ui/dashboard/pagination/pagination";
 import { generatePdf } from 'app/utils/generatePdf';
 
 const ListInvoice = () => {
@@ -11,6 +10,7 @@ const ListInvoice = () => {
   const [selectedInvoice, setSelectedInvoice] = useState(null); // State untuk menyimpan invoice yang dipilih
   const [isPopupVisible, setIsPopupVisible] = useState(false); // State untuk menampilkan popup
   const [emailAccess, setEmailAccess] = useState(''); // State untuk input email baru
+  const [searchQuery, setSearchQuery] = useState(''); // State untuk menyimpan kata kunci pencarian
 
   // Fungsi untuk memformat mata uang
   const formatCurrency = (value) => {
@@ -20,13 +20,27 @@ const ListInvoice = () => {
   // Fetch data invoice dari API
   useEffect(() => {
     const fetchInvoices = async () => {
-      const response = await fetch('/api/invoice'); // Panggil API untuk mendapatkan daftar invoice
-      const data = await response.json();
-      setInvoices(data); // Simpan data ke state
+      try {
+        const response = await fetch('/api/invoice'); // Panggil API untuk mendapatkan daftar invoice
+        const data = await response.json();
+        setInvoices(data); // Simpan data ke state
+        console.log('Fetched Invoices:', data); // Debugging
+      } catch (error) {
+        console.error('Error fetching invoices:', error); // Debugging
+      }
     };
 
     fetchInvoices(); // Jalankan fungsi fetch
   }, []);
+
+  // Fungsi untuk memfilter invoice berdasarkan kata kunci
+  const filteredInvoices = invoices.filter((invoice) => {
+    const matchesSearch =
+      invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invoice.client_name.toLowerCase().includes(searchQuery.toLowerCase());
+    console.log('Filtering Invoices:', invoice.invoice_number, matchesSearch); // Debugging
+    return matchesSearch;
+  });
 
   // Fungsi untuk menangani klik tombol "Detail"
   const handleDetailClick = async (invoice) => {
@@ -39,6 +53,7 @@ const ListInvoice = () => {
         setSelectedInvoice(data); // Simpan detail invoice ke state
         setEmailAccess(''); // Reset input email
         setIsPopupVisible(true); // Tampilkan popup
+        console.log('Detail Invoice:', data); // Debugging
       } else {
         alert('Gagal mengambil detail invoice.');
       }
@@ -52,11 +67,13 @@ const ListInvoice = () => {
   const handleClosePopup = () => {
     setIsPopupVisible(false);
     setSelectedInvoice(null);
+    console.log('Popup Closed'); // Debugging
   };
 
   // Fungsi untuk menangani perubahan input email
   const handleEmailChange = (e) => {
     setEmailAccess(e.target.value);
+    console.log('Email Input Changed:', e.target.value); // Debugging
   };
 
   // Fungsi untuk menambahkan email baru
@@ -82,6 +99,7 @@ const ListInvoice = () => {
         const data = await fetchResponse.json();
         setSelectedInvoice(data);
         setEmailAccess(''); // Reset input email
+        console.log('Email Added:', emailAccess); // Debugging
       } else {
         const errorData = await response.json();
         alert(errorData.error || 'Gagal menambahkan email.');
@@ -109,6 +127,7 @@ const ListInvoice = () => {
         const fetchResponse = await fetch(`/api/invoice?invoice_id=${selectedInvoice.invoice_id}`);
         const data = await fetchResponse.json();
         setSelectedInvoice(data);
+        console.log('Email Deleted:', emailToDelete); // Debugging
       } else {
         const errorData = await response.json();
         alert(errorData.error || 'Gagal menghapus email.');
@@ -122,6 +141,7 @@ const ListInvoice = () => {
   // Fungsi untuk mengunduh PDF
   const handleDownloadPDF = async () => {
     await generatePdf(selectedInvoice, formatCurrency);
+    console.log('PDF Downloaded'); // Debugging
   };
 
   // Fungsi untuk soft delete invoice
@@ -138,6 +158,7 @@ const ListInvoice = () => {
         );
         alert('Invoice berhasil dihapus');
         handleClosePopup(); // Tutup popup setelah berhasil menghapus
+        console.log('Invoice Soft Deleted:', invoiceId); // Debugging
       } else {
         alert('Gagal menghapus invoice');
       }
@@ -150,7 +171,10 @@ const ListInvoice = () => {
   return (
     <div className={styles.container}>
       <div className={styles.top}>
-        <Search placeholder="Search invoice..." />
+        <Search
+          placeholder="Search invoice..."
+          onSearch={(query) => setSearchQuery(query)}
+        />
         <Link href="/dashboard/invoice/create">
           <button className={styles.addButton}>Create Invoice</button>
         </Link>
@@ -165,7 +189,7 @@ const ListInvoice = () => {
           </tr>
         </thead>
         <tbody>
-          {invoices.map((invoice) => (
+          {filteredInvoices.map((invoice) => (
             <tr key={invoice.invoice_number}>
               <td>{invoice.invoice_number}</td>
               <td>{invoice.client_name}</td>
@@ -184,7 +208,6 @@ const ListInvoice = () => {
           ))}
         </tbody>
       </table>
-      {/* <Pagination /> */}
 
       {/* Popup Detail Invoice */}
       {isPopupVisible && selectedInvoice && (
@@ -204,7 +227,6 @@ const ListInvoice = () => {
                   {email.email} &nbsp;
                   <button
                     onClick={() => handleDeleteEmail(email.email)} // Panggil fungsi hapus email
-                    // className={styles.deleteButton}
                   >
                     X
                   </button>
