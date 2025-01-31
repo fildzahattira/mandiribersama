@@ -142,29 +142,51 @@ export const generatePdf = async (selectedInvoice, formatCurrency) => {
     startY = addText(`Total Amount: IDR ${formatCurrency(totalAmount)}`, margin, startY, 10, 'bold');
   }
 
-  // Footer
+  // // Footer
   startY += 7; // Beri jarak tambahan
-  startY = addText("PAYMENT SHOULD BE RECEIVED IN FULL AMOUNT", margin, startY, 10, 'bold');
-  startY = addText("CV. MANDIRI BERSAMA", margin, startY, 10);
-  startY = addText("IDR REK No: 1400012299286", margin, startY, 10);
-  startY = addText("BANK MANDIRI Cab. Surabaya Niaga.", margin, startY, 10);
-  startY += 7; // Beri jarak tambahan
+  // startY = addText("PAYMENT SHOULD BE RECEIVED IN FULL AMOUNT", margin, startY, 10, 'bold');
+  // startY = addText("CV. MANDIRI BERSAMA", margin, startY, 10);
+  // startY = addText("IDR REK No: 1400012299286", margin, startY, 10);
+  // startY = addText("BANK MANDIRI Cab. Surabaya Niaga.", margin, startY, 10);
+  // startY += 7; // Beri jarak tambahan
 
-  // Generate QR Code
-  try {
-    const qrCodeData = selectedInvoice.qr_code; // Ambil URL dari kolom qr_code
-    const QRCode = await import('qrcode');
-    const qrCodeImage = await QRCode.toDataURL(qrCodeData, { width: 100, margin: 1 });
 
-    // Tambahkan QR Code ke PDF (posisi di kanan bawah)
-    const qrCodeX = doc.internal.pageSize.width - 50; // Posisi X untuk QR Code (kanan)
-    const qrCodeY = doc.internal.pageSize.height - 50; // Posisi Y untuk QR Code (bawah)
-    doc.addImage(qrCodeImage, 'PNG', qrCodeX, qrCodeY, 30, 30); // (x, y, width, height)
-  } catch (error) {
-    console.error("Error generating QR code:", error);
-    alert("Gagal membuat QR Code.");
+
+// Generate QR Code
+try {
+  const qrCodeData = selectedInvoice.qr_code; // Ambil URL dari kolom qr_code
+  const QRCode = await import('qrcode');
+  const qrCodeImage = await QRCode.toDataURL(qrCodeData, { width: 100, margin: 1 });
+  // Hitung tinggi blok footer (perkiraan)
+  const qrCodeHeight = 30; // Tinggi QR Code
+  const footerTextHeight = 4 * 7; // 4 baris teks, masing-masing sekitar 7mm tinggi
+  const footerBlockHeight = footerTextHeight + qrCodeHeight + 7; // Total tinggi footer (termasuk jarak)
+
+  // Periksa apakah footer akan melebihi batas halaman
+  const pageHeight = doc.internal.pageSize.height;
+  if (startY + footerBlockHeight + margin > pageHeight) {
+    doc.addPage(); // Tambah halaman baru jika tidak cukup ruang
+    startY = margin; // Reset posisi Y di halaman baru
   }
 
-  // Simpan PDF
-  doc.save(`INVOICE_${selectedInvoice.invoice_number}.pdf`);
+  // Tambahkan teks footer terlebih dahulu
+  startY = addText("PAYMENT SHOULD BE RECEIVED IN FULL AMOUNT", margin, startY, 10, 'bold');
+  startY = addText("CV. MANDIRI BERSAMA", margin, startY + 7, 10);
+  startY = addText("IDR REK No: 1400012299286", margin, startY, 10);
+  startY = addText("BANK MANDIRI Cab. Surabaya Niaga.", margin, startY, 10);
+
+  // Tambahkan QR Code di bawah teks footer
+  const qrCodeWidth = 30;
+  const qrCodeX = doc.internal.pageSize.width - margin - qrCodeWidth; // QR Code di kanan
+  const qrCodeY = startY + 7; // QR Code di bawah teks terakhir
+  doc.addImage(qrCodeImage, 'PNG', qrCodeX, qrCodeY, qrCodeWidth, qrCodeHeight);
+
+
+} catch (error) {
+  console.error("Error generating QR code:", error);
+  alert("Gagal membuat QR Code.");
+}
+
+// Simpan PDF
+doc.save(`INVOICE_${selectedInvoice.invoice_number}.pdf`);
 };
