@@ -1,6 +1,8 @@
 import { createConnection } from 'app/lib/db';
 import { NextResponse } from 'next/server';
 
+import { v4 as uuidv4 } from 'uuid';
+
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const invoiceId = searchParams.get('invoice_id'); // Mengambil invoice_id dari query parameter
@@ -118,81 +120,80 @@ export async function GET(request) {
 }
 
 export async function POST(request) {
-    let db;
-    try {
-        const {
-            invoice_date, client_name, client_address, forwarding_vessel,
-            port_of_discharge, port_of_loading, bill_lading, shipper,
-            consignee, measurement, cargo_description, etd, eta, admin_id,
-            charges, emails
-        } = await request.json();
+  let db;
+  try {
+      const {
+          invoice_date, client_name, client_address, forwarding_vessel,
+          port_of_discharge, port_of_loading, bill_lading, shipper,
+          consignee, measurement, cargo_description, etd, eta, admin_id,
+          charges, emails
+      } = await request.json();
 
-        db = await createConnection();
-        await db.beginTransaction(); // Start transaction
+      db = await createConnection();
+      await db.beginTransaction(); // Start transaction
 
-        // Generate invoice_number
-        const sqlCountInvoices = "SELECT COUNT(*) AS count FROM invoice";
-        const [countResult] = await db.query(sqlCountInvoices);
-        const count = countResult[0].count + 1; // Nomor urut invoice dimulai dari 1
+      // Generate UUID untuk invoice_id
+      const invoiceId = uuidv4();
 
-        // Tambahkan padding nol untuk memastikan format 3 digit
-        const paddedCount = String(count).padStart(3, '0');
+      // Generate invoice_number (opsional, bisa disesuaikan)
+      const sqlCountInvoices = "SELECT COUNT(*) AS count FROM invoice";
+      const [countResult] = await db.query(sqlCountInvoices);
+      const count = countResult[0].count + 1; // Nomor urut invoice dimulai dari 1
+      const paddedCount = String(count).padStart(3, '0');
+      const clientInitials = client_name
+          .split(' ')
+          .map(word => word[0].toUpperCase())
+          .join('');
+      const formattedDate = invoice_date.replace(/-/g, '');
+      const invoiceNumber = `${paddedCount}/${clientInitials}/${formattedDate}`;
 
-        const clientInitials = client_name
-            .split(' ')
-            .map(word => word[0].toUpperCase())
-            .join(''); // Singkatan dari nama client
-        const formattedDate = invoice_date.replace(/-/g, ''); // Format tanggal jadi YYYYMMDD
-        const invoiceNumber = `${paddedCount}/${clientInitials}/${formattedDate}`;
+      // Insert invoice dengan UUID
+      const sqlInvoice = `
+          INSERT INTO invoice 
+          (invoice_id, invoice_number, invoice_date, client_name, client_address, forwarding_vessel, 
+          port_of_discharge, port_of_loading, bill_lading, shipper, consignee, 
+          measurement, cargo_description, etd, eta, admin_id) 
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+      const [result] = await db.execute(sqlInvoice, [
+          invoiceId, invoiceNumber, invoice_date, client_name, client_address, forwarding_vessel,
+          port_of_discharge, port_of_loading, bill_lading, shipper, consignee,
+          measurement, cargo_description, etd, eta, admin_id
+      ]);
 
-        // Insert invoice
-        const sqlInvoice = `
-            INSERT INTO invoice 
-            (invoice_number, invoice_date, client_name, client_address, forwarding_vessel, 
-            port_of_discharge, port_of_loading, bill_lading, shipper, consignee, 
-            measurement, cargo_description, etd, eta, admin_id) 
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
-        const [result] = await db.execute(sqlInvoice, [
-            invoiceNumber, invoice_date, client_name, client_address, forwarding_vessel,
-            port_of_discharge, port_of_loading, bill_lading, shipper, consignee,
-            measurement, cargo_description, etd, eta, admin_id
-        ]);
+      // Insert charges dengan UUID
+      if (charges && charges.length > 0) {
+          const sqlCharges = "INSERT INTO detail_invoice (invoice_id, description, amount) VALUES ?";
+          const chargeValues = charges.map(charge => [invoiceId, charge.description, charge.amount]);
+          await db.query(sqlCharges, [chargeValues]);
+      }
 
-        const invoiceId = result.insertId; // Get the inserted invoice ID
+      // Insert emails dengan UUID
+      if (emails && emails.length > 0) {
+          const sqlEmails = "INSERT INTO access_invoice (invoice_id, email) VALUES ?";
+          const emailValues = emails.map(email => [invoiceId, email]);
+          await db.query(sqlEmails, [emailValues]);
+      }
 
-        // Insert charges
-        if (charges && charges.length > 0) {
-            const sqlCharges = "INSERT INTO detail_invoice (invoice_id, description, amount) VALUES ?";
-            const chargeValues = charges.map(charge => [invoiceId, charge.description, charge.amount]);
-            await db.query(sqlCharges, [chargeValues]);
-        }
+      // Generate QR code URL
+      const qrUrl = `http://localhost:3000/client/verifyEmail?invoice_id=${invoiceId}`;
 
-        // Insert emails
-        if (emails && emails.length > 0) {
-            const sqlEmails = "INSERT INTO access_invoice (invoice_id, email) VALUES ?";
-            const emailValues = emails.map(email => [invoiceId, email]);
-            await db.query(sqlEmails, [emailValues]);
-        }
+      // Save QR code URL to database
+      const sqlUpdateQR = "UPDATE invoice SET qr_code = ? WHERE invoice_id = ?";
+      await db.query(sqlUpdateQR, [qrUrl, invoiceId]);
 
-            // Generate QR code URL
-            const qrUrl = `http://localhost:3000/client/verifyEmail?invoice_id=${invoiceId}`; // Arahkan ke halaman verifikasi email
+      await db.commit(); // Commit transaction
 
-            // Save QR code URL to database
-            const sqlUpdateQR = "UPDATE invoice SET qr_code = ? WHERE invoice_id = ?";
-            await db.query(sqlUpdateQR, [qrUrl, invoiceId]);
-        await db.commit(); // Commit transaction
-
-        return NextResponse.json({ 
-            message: 'Invoice added successfully', 
-            id: invoiceId, 
-            invoice_number: invoiceNumber, 
-            qr_code: qrUrl 
-        });
-    } catch (error) {
-        console.log(error);
-        if (db && db.rollback) await db.rollback(); // Rollback transaction in case of error
-        return NextResponse.json({ error: error.message });
-    }
+      return NextResponse.json({ 
+          message: 'Invoice added successfully', 
+          id: invoiceId, 
+          invoice_number: invoiceNumber, 
+          qr_code: qrUrl 
+      });
+  } catch (error) {
+      console.log(error);
+      if (db && db.rollback) await db.rollback(); // Rollback transaction in case of error
+      return NextResponse.json({ error: error.message });
+  }
 }
 export async function PUT(request) {
   const { searchParams } = new URL(request.url);
