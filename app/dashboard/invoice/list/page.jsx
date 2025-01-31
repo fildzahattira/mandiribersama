@@ -38,7 +38,7 @@ const ListInvoice = () => {
     const matchesSearch =
       invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       invoice.client_name.toLowerCase().includes(searchQuery.toLowerCase());
-    console.log('Filtering Invoices:', invoice.invoice_number, matchesSearch); // Debugging
+    // console.log('Filtering Invoices:', invoice.invoice_number, matchesSearch); // Debugging
     return matchesSearch;
   });
 
@@ -53,9 +53,9 @@ const ListInvoice = () => {
         setSelectedInvoice(data); // Simpan detail invoice ke state
         setEmailAccess(''); // Reset input email
         setIsPopupVisible(true); // Tampilkan popup
-        console.log('Detail Invoice:', data); // Debugging
+        // console.log('Detail Invoice:', data); // Debugging
       } else {
-        alert('Gagal mengambil detail invoice.');
+        alert('Failed get detail invoice.');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -79,7 +79,7 @@ const ListInvoice = () => {
   // Fungsi untuk menambahkan email baru
   const handleAddEmail = async () => {
     if (!emailAccess.trim()) {
-      alert('Email tidak boleh kosong!');
+      alert('Fill new email field first');
       return;
     }
 
@@ -93,13 +93,13 @@ const ListInvoice = () => {
       });
 
       if (response.ok) {
-        alert('Email berhasil ditambahkan.');
+        alert('Email added successfully');
         // Refresh data invoice untuk menampilkan email yang baru
         const fetchResponse = await fetch(`/api/invoice?invoice_id=${selectedInvoice.invoice_id}`);
         const data = await fetchResponse.json();
         setSelectedInvoice(data);
         setEmailAccess(''); // Reset input email
-        console.log('Email Added:', emailAccess); // Debugging
+        // console.log('Email Added:', emailAccess); // Debugging
       } else {
         const errorData = await response.json();
         alert(errorData.error || 'Gagal menambahkan email.');
@@ -122,12 +122,12 @@ const ListInvoice = () => {
       });
 
       if (response.ok) {
-        alert('Email berhasil dihapus.');
+        alert('Email deleted successfully');
         // Refresh data invoice untuk menampilkan email yang baru
         const fetchResponse = await fetch(`/api/invoice?invoice_id=${selectedInvoice.invoice_id}`);
         const data = await fetchResponse.json();
         setSelectedInvoice(data);
-        console.log('Email Deleted:', emailToDelete); // Debugging
+        // console.log('Email Deleted:', emailToDelete); // Debugging
       } else {
         const errorData = await response.json();
         alert(errorData.error || 'Gagal menghapus email.');
@@ -156,9 +156,9 @@ const ListInvoice = () => {
         setInvoices((prevInvoices) =>
           prevInvoices.filter((invoice) => invoice.invoice_id !== invoiceId)
         );
-        alert('Invoice berhasil dihapus');
+        alert('Invoice deleted successfully');
         handleClosePopup(); // Tutup popup setelah berhasil menghapus
-        console.log('Invoice Soft Deleted:', invoiceId); // Debugging
+        // console.log('Invoice Soft Deleted:', invoiceId); // Debugging
       } else {
         alert('Gagal menghapus invoice');
       }
@@ -220,13 +220,13 @@ const ListInvoice = () => {
             <hr />
 
             {/* Tampilkan daftar email yang sudah ada */}
-            <h3>Email Access</h3>
+            <h4>Email Access</h4>
             <ul>
               {selectedInvoice.access_email && selectedInvoice.access_email.map((email, index) => (
                 <li key={index}>
                   {email.email} &nbsp;
                   <button
-                    onClick={() => handleDeleteEmail(email.email)} // Panggil fungsi hapus email
+                    onClick={() => handleDeleteEmail(email.email)}
                   >
                     X
                   </button>
@@ -235,25 +235,25 @@ const ListInvoice = () => {
             </ul>
 
             {/* Input untuk menambahkan email baru */}
-            <h3>Tambah Email Baru</h3>
+            {/* <h3>Add new email access</h3> */}
             <input
               type="email"
-              placeholder="Masukkan email baru..."
+              placeholder="Type here new email access..."
               value={emailAccess}
               onChange={handleEmailChange}
               className={styles.input}
             />
             <button onClick={handleAddEmail} className={styles.addButton}>
-              Tambah Email
+              Add Email
             </button>
 
             <br />
             <div className={styles.actions}>
               <button onClick={handleDownloadPDF} className={styles.downloadButton}>
-                Unduh PDF
+                Download Invoice
               </button>
               <button onClick={() => handleSoftDelete(selectedInvoice.invoice_id)} className={styles.deleteButton}>
-                Hapus Dokumen Invoice
+                Delete Invoice
               </button>
             </div>
           </div>
