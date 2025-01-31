@@ -1,15 +1,12 @@
 "use client"
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import styles from "@/app/ui/dashboard/user/user.module.css";
 import Search from "@/app/ui/dashboard/search/search";
 import Link from "next/link";
-// import Pagination from "@/app/ui/dashboard/pagination/pagination";
 
 const ListUser = () => {
   const [users, setUsers] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(''); // State untuk menyimpan kata kunci pencarian
-
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -17,7 +14,6 @@ const ListUser = () => {
         const response = await fetch('/api/user');
         const data = await response.json();
         setUsers(data);
-        console.log('Fetched Invoices:', data); // Debugging
       } catch (error) {
         console.error('Error fetching users:', error);
       }
@@ -26,19 +22,44 @@ const ListUser = () => {
     fetchUsers();
   }, []);
 
-    // Fungsi untuk memfilter user berdasarkan kata kunci
-    const filteredUsers = users.filter((user) => {
-      const matchesSearch =
-        user.admin_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        user.admin_email.toLowerCase().includes(searchQuery.toLowerCase());
-      // console.log('Filtering Invoices:', invoice.invoice_number, matchesSearch); // Debugging
-      return matchesSearch;
-    });
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      user.admin_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.admin_email.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesSearch;
+  });
+
+  const toggleUserStatus = async (admin_id, is_active) => {
+    try {
+      const response = await fetch('/api/user', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ admin_id, is_active: !is_active }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Gagal mengubah status user');
+      }
+
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.admin_id === admin_id ? { ...user, is_active: !is_active } : user
+        )
+      );
+
+      alert('Status user berhasil diubah');
+    } catch (error) {
+      console.error('Error:', error);
+      alert(error.message);
+    }
+  };
 
   return (
     <div className={styles.container}>
       <div className={styles.top}>
-      <Search
+        <Search
           placeholder="Search user..."
           onSearch={(query) => setSearchQuery(query)}
         />
@@ -51,31 +72,32 @@ const ListUser = () => {
           <tr>
             <td>Name</td>
             <td>Email</td>
+            <td>Status</td>
             <td>Action</td>
           </tr>
         </thead>
         <tbody>
-          {filteredUsers.map(user => (
+          {filteredUsers.map((user) => (
             <tr key={user.admin_id}>
               <td>
-                <div className={styles.user}>
-                  {user.admin_name}
-                </div>
+                <div className={styles.user}>{user.admin_name}</div>
               </td>
               <td>{user.admin_email}</td>
+              <td>{user.is_active ? 'Active' : 'Non-Active'}</td>
               <td>
                 <div className={styles.buttons}>
-                  <Link href={`/dashboard/user/${user.admin_id}`}>
-                    <button className={`${styles.button} ${styles.view}`}>View</button>
-                  </Link>
-                  <button className={`${styles.button} ${styles.delete}`}>Delete</button>
+                  <button
+                    className={`${styles.button} ${user.is_active ? styles.deactivate : styles.activate}`}
+                    onClick={() => toggleUserStatus(user.admin_id, user.is_active)}
+                  >
+                    {user.is_active ? 'Non-Active' : 'Activate'}
+                  </button>
                 </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      {/* <Pagination /> */}
     </div>
   );
 };
