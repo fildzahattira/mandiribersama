@@ -18,8 +18,7 @@ export async function POST(request) {
         const [results] = await db.query(sql, [invoice_id, email]);
 
         if (results.length > 0) {
-            // Jika email valid, generate OTP
-            const secret = process.env.TOTP_SECRET; // Secret key untuk TOTP (simpan di .env)
+            const secret = process.env.TOTP_SECRET; 
             const otp = generateTOTP(secret);
 
             // Kirim OTP ke email pengguna
@@ -27,10 +26,8 @@ export async function POST(request) {
             const text = `Kode OTP Anda adalah: ${otp}. Kode ini berlaku selama 1 menit.`;
             await sendEmail(email, subject, text);
 
-            // Kembalikan success
             return NextResponse.json({ success: true });
         } else {
-            // Jika email tidak valid, kembalikan error
             return NextResponse.json({ success: false, error: 'Email tidak terdaftar untuk invoice ini' }, { status: 400 });
         }
     } catch (error) {

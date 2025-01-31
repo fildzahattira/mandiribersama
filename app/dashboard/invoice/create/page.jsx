@@ -53,7 +53,7 @@ const CreateInvoice = () => {
             cargo_description: document.getElementById('cargo_description').value,
             etd: document.getElementById('etd').value,
             eta: document.getElementById('eta').value,
-            admin_id: document.getElementById('admin_id').value,
+            admin_id: 1,
             charges,
             emails,
         };
@@ -190,14 +190,14 @@ const CreateInvoice = () => {
                             <input type="date" id="eta" name="eta" />
                         </td>
                     </tr>
-                    <tr>
+                    {/* <tr>
                         <td>
                             <label>Admin id</label>
                         </td>
                         <td>
                             <input type="text" id="admin_id" name="admin_id" />
                         </td>
-                    </tr>
+                    </tr> */}
                 </tbody>
             </table>
             <br/>
