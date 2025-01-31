@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import styles from "@/app/ui/login/login.module.css"
+import styles from "@/app/ui/login/login.module.css";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -9,6 +9,8 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setError(""); // Reset error sebelum request baru
 
     const response = await fetch("/api/auth", {
       method: "POST",
@@ -22,9 +24,9 @@ const LoginPage = () => {
 
     if (response.ok) {
       alert(result.message);
-      window.location.href = "/dashboard"; // Redirect to dashboard after successful login
+      window.location.href = "/dashboard"; // Redirect ke dashboard jika login berhasil
     } else {
-      setError(result.error || "Login failed");
+      setError(result.error || "Login failed"); // Menampilkan pesan error dari API
     }
   };
 
@@ -32,7 +34,7 @@ const LoginPage = () => {
     <div className={styles.container}>
       <form onSubmit={handleSubmit} className={styles.form}>
         <h1>CV. Mandiri Bersama</h1>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>} {/* Tampilkan pesan error */}
         <input
           type="text"
           placeholder="Username"
