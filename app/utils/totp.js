@@ -1,4 +1,3 @@
-// utils/totp.js
 import crypto from 'crypto';
 
 // Fungsi HMAC-SHA1

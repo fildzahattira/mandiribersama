@@ -1,4 +1,3 @@
-// app/api/generateTOTP/route.js
 import { generateTOTP } from 'app/utils/totp';
 
 export async function POST(request) {
