@@ -1,4 +1,5 @@
 'use client'
+import { useState, useEffect } from "react";
 import MenuLink from "./menuLink/menuLink";
 import styles from "./sidebar.module.css";
 import {
@@ -9,6 +10,7 @@ import {
 import {
   MdOutlineAccountCircle,
   MdDashboard,
+  MdOutlinePassword,
   MdLogout,
 } from "react-icons/md";
 
@@ -57,6 +59,11 @@ const menuItems = [
     title: "Others",
     list: [
       {
+        title: "Change Password",
+        path: "/dashboard/user/changePassword",
+        icon: <MdOutlinePassword />,
+      },
+      {
         title: "Logout",
         path: "/logout",
         icon: <MdLogout />,
@@ -66,6 +73,28 @@ const menuItems = [
 ];
 
 const Sidebar = () => {
+  const [user, setUser] = useState({ username: "Loading...", role: "Loading..." });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch("/api/auth", {
+        credentials: "include", // Pastikan cookie dikirim
+      });
+        if (response.ok) {
+          const data = await response.json();
+          setUser({ username: data.admin_name, role: data.admin_role });
+        } else {
+          console.error("Failed to fetch user data");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   const handleLogout = async () => {
     try {
       const response = await fetch("/api/logout", {
@@ -73,7 +102,6 @@ const Sidebar = () => {
       });
 
       if (response.ok) {
-        // Redirect ke halaman login setelah logout berhasil
         window.location.href = "/login";
       } else {
         console.error("Logout failed");
@@ -88,8 +116,8 @@ const Sidebar = () => {
       <div className={styles.user}>
         <MdOutlineAccountCircle className={styles.accountIcon} />
         <div className={styles.userDetail}>
-          {/* <span className={styles.username}>Park Jimin</span> */}
-          <span className={styles.userTitle}>Admin</span>
+          <span className={styles.username}>{user.username}</span>
+          <span className={styles.userTitle}>{user.role}</span>
         </div>
       </div>
       <ul className={styles.list}>
@@ -100,7 +128,7 @@ const Sidebar = () => {
               <MenuLink
                 key={item.title}
                 item={item}
-                onClick={item.title === "Logout" ? handleLogout : undefined} // Teruskan handleLogout untuk item Logout
+                onClick={item.title === "Logout" ? handleLogout : undefined}
               />
             ))}
           </li>
