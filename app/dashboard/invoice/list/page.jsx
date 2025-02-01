@@ -23,8 +23,13 @@ const ListInvoice = () => {
       try {
         const response = await fetch('/api/invoice'); // Panggil API untuk mendapatkan daftar invoice
         const data = await response.json();
-        setInvoices(data); // Simpan data ke state
-        console.log('Fetched Invoices:', data); // Debugging
+  
+        const sortedInvoices = data.sort((a, b) => {
+          return a.invoice_number.localeCompare(b.invoice_number);
+        });
+  
+        setInvoices(sortedInvoices); // Simpan data yang sudah diurutkan ke state
+        console.log('Fetched and Sorted Invoices:', sortedInvoices); // Debugging
       } catch (error) {
         console.error('Error fetching invoices:', error); // Debugging
       }
