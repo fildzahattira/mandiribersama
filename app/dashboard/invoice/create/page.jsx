@@ -1,9 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from '@/app/ui/dashboard/invoice/createInvoice.module.css';
 const CreateInvoice = () => {
 
     const [charges, setCharges] = useState([{ description: '', amount: '' }]);
+    
 
     const addRow = () => {
         setCharges([...charges, { description: '', amount: '' }]);
@@ -37,6 +38,30 @@ const CreateInvoice = () => {
         setEmails(updatedEmails);
     };
 
+    const [adminId, setAdminId] = useState(null);
+     // Fungsi untuk mengambil admin_id dari token
+    const fetchAdminId = async () => {
+        try {
+        const response = await fetch('/api/auth', {
+            method: 'GET',
+            credentials: 'include', // Sertakan cookies
+        });
+        const data = await response.json();
+        if (response.ok) {
+            setAdminId(data.admin_id); // Set admin_id dari response
+        } else {
+            console.error('Failed to fetch admin ID:', data.error);
+        }
+        } catch (error) {
+        console.error('Error fetching admin ID:', error);
+        }
+    };
+
+    // Ambil admin_id saat komponen dimuat
+    useEffect(() => {
+        fetchAdminId();
+    }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault(); // Mencegah refresh halaman
         const invoiceData = {
@@ -53,7 +78,7 @@ const CreateInvoice = () => {
             cargo_description: document.getElementById('cargo_description').value,
             etd: document.getElementById('etd').value,
             eta: document.getElementById('eta').value,
-            admin_id: 1,
+            admin_id: adminId,
             charges,
             emails,
         };
