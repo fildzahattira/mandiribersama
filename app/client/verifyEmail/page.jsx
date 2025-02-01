@@ -51,7 +51,7 @@ export default function VerifyEmail() {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.title}>Masukkan Email Anda</h1>
+            <h1 className={styles.title}>Insert Your Email</h1>
             <form onSubmit={handleSubmit} className={styles.form}>
                 <input
                     type="email"
@@ -62,7 +62,7 @@ export default function VerifyEmail() {
                     className={styles.input}
                 />
                 <button type="submit" className={styles.button} disabled={loading}>
-                    {loading ? 'Mengirim...' : 'Kirim'}
+                    {loading ? 'Sending...' : 'Send'}
                 </button>
             </form>
             {error && <p className={styles.error}>{error}</p>}
