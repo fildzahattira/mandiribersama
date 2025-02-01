@@ -61,7 +61,7 @@ export async function GET(req) {
 
     const connection = await createConnection(); 
     const [user] = await connection.query(
-      "SELECT admin_name, admin_role FROM admin WHERE admin_id = ?",
+      "SELECT admin_id, admin_name, admin_role FROM admin WHERE admin_id = ?",
       [userId]
     );
     // await connection.end(); // Tutup koneksi setelah selesai
