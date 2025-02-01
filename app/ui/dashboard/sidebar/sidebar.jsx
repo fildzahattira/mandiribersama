@@ -47,11 +47,13 @@ const menuItems = [
         title: "Create User",
         path: "/dashboard/user/create",
         icon: <FaUserFriends />,
+        restricted: true, 
       },
       {
         title: "List User",
         path: "/dashboard/user/list",
         icon: <FaListUl />,
+        restricted: true, 
       },
     ],
   },
@@ -79,8 +81,8 @@ const Sidebar = () => {
     const fetchUser = async () => {
       try {
         const response = await fetch("/api/auth", {
-        credentials: "include", // Pastikan cookie dikirim
-      });
+          credentials: "include", 
+        });
         if (response.ok) {
           const data = await response.json();
           setUser({ username: data.admin_name, role: data.admin_role });
@@ -124,13 +126,23 @@ const Sidebar = () => {
         {menuItems.map((cat) => (
           <li key={cat.title}>
             <span className={styles.cat}>{cat.title}</span>
-            {cat.list.map((item) => (
-              <MenuLink
-                key={item.title}
-                item={item}
-                onClick={item.title === "Logout" ? handleLogout : undefined}
-              />
-            ))}
+            {cat.list.map((item) => {
+              if (item.restricted && user.role === "Admin") {
+                return ( 
+                  <div key={item.title} className={styles.disabledLink}>
+                    {item.icon}
+                    <span>{item.title} (Super Admin Only)</span>
+                  </div>
+                );
+              }
+              return (
+                <MenuLink
+                  key={item.title}
+                  item={item}
+                  onClick={item.title === "Logout" ? handleLogout : undefined}
+                />
+              );
+            })}
           </li>
         ))}
       </ul>
