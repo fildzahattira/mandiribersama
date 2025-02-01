@@ -40,3 +40,16 @@
     font-size: 13px;
     margin: 10px 0px;
 }
+.disabledLink {
+    display: flex;
+    align-items: center;
+    color: gray;
+    cursor: not-allowed;
+    padding: 8px;
+    opacity: 0.5;
+  }
+  
+  .disabledLink span {
+    margin-left: 10px;
+  }
+  
