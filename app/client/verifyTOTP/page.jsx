@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import styles from '@/app/ui/client/client.module.css';
 
-export default function EnterOtp() {
+export default function verifyTOTP() {
     const [otp, setOtp] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -36,7 +36,7 @@ export default function EnterOtp() {
                 // Jika OTP valid, arahkan ke halaman sukses
                 router.push(`/client/validationPage?invoice_id=${invoiceId}`);
             } else {
-                setError('OTP tidak valid. Silakan coba lagi.');
+                setError('Invalid OTP. Please try again.');
             }
         } catch (err) {
             console.error('Error:', err);
@@ -56,11 +56,11 @@ export default function EnterOtp() {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.title}>Masukkan Kode OTP</h1>
+            <h1 className={styles.title}>Insert OTP</h1>
             <form onSubmit={handleSubmit} className={styles.form}>
                 <input
                     type="text"
-                    placeholder="Masukkan OTP"
+                    placeholder="XXXXXX"
                     value={otp}
                     onChange={handleOtpChange}
                     maxLength={6} // Maksimal 6 digit
@@ -68,10 +68,11 @@ export default function EnterOtp() {
                     className={styles.input}
                 />
                 <button type="submit" className={styles.button} disabled={loading}>
-                    {loading ? 'Memverifikasi...' : 'Verifikasi'}
+                    {loading ? 'Sending...' : 'Send'}
                 </button>
             </form>
             {error && <p className={styles.error}>{error}</p>}
         </div>
     );
 }
+
