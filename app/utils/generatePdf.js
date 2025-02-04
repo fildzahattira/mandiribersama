@@ -2,11 +2,10 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import QRCode from 'qrcode';
 
-// Fungsi utilitas untuk memformat tanggal menjadi "tanggal-bulan-tahun"
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, '0'); // Tambahkan leading zero jika perlu
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
+  const day = String(date.getDate()).padStart(2, '0'); 
+  const month = String(date.getMonth() + 1).padStart(2, '0'); 
   const year = date.getFullYear();
   return `${day}-${month}-${year}`;
 };
@@ -27,22 +26,18 @@ export const generatePdf = async (selectedInvoice, formatCurrency) => {
   const margin = 20; // Margin kiri dan kanan
   let startY = 10; // Posisi awal untuk menulis data
 
-  // Tambahkan logo di sebelah kiri
   const logoUrl = '/logo.jpeg'; // Replace with the path or URL of the logo
   const marginLogo = 15; // Left margin of the document
   const newWidth = 75; // Desired width for the image in the PDF
 
   // Original dimensions of the image (replace with the actual dimensions of your image)
-  const originalWidth = 300; // Original width of the image in pixels
-  const originalHeight = 100; // Original height of the image in pixels
+  const originalWidth = 300; 
+  const originalHeight = 100; 
 
-  // Calculate the aspect ratio of the original image
   const aspectRatio = originalWidth / originalHeight;
 
-  // Calculate the new height based on the aspect ratio
   const newHeight = newWidth / aspectRatio;
 
-  // Add the image to the PDF with the correct dimensions
   doc.addImage(logoUrl, 'jpeg', marginLogo, 20, newWidth, newHeight);
 
   // Fungsi untuk menambahkan teks dengan pengecekan batas halaman
@@ -54,8 +49,8 @@ export const generatePdf = async (selectedInvoice, formatCurrency) => {
   };
 
   // Header (Alamat dan Kontak di pojok kanan garis)
-  const addressX = doc.internal.pageSize.width - margin - 40; // Posisi X untuk alamat dan kontak (pojok kanan)
-  let headerY = 20; // Posisi Y untuk header, sejajar dengan logo
+  const addressX = doc.internal.pageSize.width - margin - 40; 
+  let headerY = 20; 
   headerY = addText("JL. Sanggar No 31-33", addressX, headerY, 10);
   headerY = addText("Surabaya (60175)", addressX, headerY, 10);
   headerY = addText("Telp. : +6231-73690229", addressX, headerY, 10);
@@ -63,7 +58,7 @@ export const generatePdf = async (selectedInvoice, formatCurrency) => {
   headerY = addText("INDONESIA", addressX, headerY, 10);
 
   // Tambahkan garis horizontal di bawah header
-  doc.setLineWidth(0.5); // Ketebalan garis
+  doc.setLineWidth(0.5); 
   doc.line(margin, headerY + 5, doc.internal.pageSize.width - margin, headerY + 5); // (x1, y1, x2, y2)
 
   // Judul Invoice (Ditempatkan di tengah)
@@ -80,55 +75,55 @@ export const generatePdf = async (selectedInvoice, formatCurrency) => {
   const invoiceDetailsX = 110; // Posisi X untuk Invoice Details
 
   startY = addText("Bill To:", billToX, startY + 10, 10, 'bold'); // Jarak tambahan sebelum Bill To
-  startY = addText(selectedInvoice.client_name.toUpperCase(), billToX, startY, 10); // Teks dinamis diubah menjadi huruf kapital
-  startY = addText(selectedInvoice.client_address.toUpperCase(), billToX, startY, 10); // Teks dinamis diubah menjadi huruf kapital
+  startY = addText(selectedInvoice.client_name.toUpperCase(), billToX, startY, 10); 
+  startY = addText(selectedInvoice.client_address.toUpperCase(), billToX, startY, 10); 
 
   // Format tanggal menggunakan fungsi utilitas
   const formattedDate = formatDate(selectedInvoice.invoice_date);
 
-  startY = addText("Invoice Number: " + selectedInvoice.invoice_number.toUpperCase(), invoiceDetailsX, startY - 14, 10); // Teks dinamis diubah menjadi huruf kapital
-  startY = addText("Date: " + formattedDate, invoiceDetailsX, startY, 10); // Tanggal tetap seperti semula
+  startY = addText("Invoice Number: " + selectedInvoice.invoice_number.toUpperCase(), invoiceDetailsX, startY - 14, 10); 
+  startY = addText("Date: " + formattedDate, invoiceDetailsX, startY, 10); 
   startY = addText("Terms: CASH ONLY", invoiceDetailsX, startY, 10);
-  startY += 7; // Beri jarak tambahan
+  startY += 7; 
 
-  // Forwarding Vessel hingga ETA
-  startY = addText("Forwarding Vessel: " + selectedInvoice.forwarding_vessel.toUpperCase(), margin, startY, 10); // Teks dinamis diubah menjadi huruf kapital
-  startY = addText("Port Of Discharge: " + selectedInvoice.port_of_discharge.toUpperCase(), margin, startY, 10); // Teks dinamis diubah menjadi huruf kapital
-  startY = addText("Port Of Loading: " + selectedInvoice.port_of_loading.toUpperCase(), margin, startY, 10); // Teks dinamis diubah menjadi huruf kapital
-  startY = addText("Bill Lading: " + selectedInvoice.bill_lading.toUpperCase(), margin, startY, 10); // Teks dinamis diubah menjadi huruf kapital
-  startY = addText("Shipper: " + selectedInvoice.shipper.toUpperCase(), margin, startY, 10); // Teks dinamis diubah menjadi huruf kapital
-  startY = addText("Consignee: " + selectedInvoice.consignee.toUpperCase(), margin, startY, 10); // Teks dinamis diubah menjadi huruf kapital
-  startY = addText("Measurement: " + selectedInvoice.measurement.toUpperCase(), margin, startY, 10); // Teks dinamis diubah menjadi huruf kapital
-  startY = addText("Cargo Description: " + selectedInvoice.cargo_description.toUpperCase(), margin, startY, 10); // Teks dinamis diubah menjadi huruf kapital
+  
+  startY = addText("Forwarding Vessel: " + selectedInvoice.forwarding_vessel.toUpperCase(), margin, startY, 10); 
+  startY = addText("Port Of Discharge: " + selectedInvoice.port_of_discharge.toUpperCase(), margin, startY, 10); 
+  startY = addText("Port Of Loading: " + selectedInvoice.port_of_loading.toUpperCase(), margin, startY, 10); 
+  startY = addText("Bill Lading: " + selectedInvoice.bill_lading.toUpperCase(), margin, startY, 10); 
+  startY = addText("Shipper: " + selectedInvoice.shipper.toUpperCase(), margin, startY, 10); 
+  startY = addText("Consignee: " + selectedInvoice.consignee.toUpperCase(), margin, startY, 10); 
+  startY = addText("Measurement: " + selectedInvoice.measurement.toUpperCase(), margin, startY, 10); 
+  startY = addText("Cargo Description: " + selectedInvoice.cargo_description.toUpperCase(), margin, startY, 10); 
 
-  // Format ETD dan ETA menggunakan fungsi utilitas
+  
   const formattedETD = formatDate(selectedInvoice.etd);
   const formattedETA = formatDate(selectedInvoice.eta);
-  startY = addText(`ETD/ETA: ${formattedETD} / ${formattedETA}`, margin, startY, 10); // Tanggal tetap seperti semula
-  startY += 7; // Beri jarak tambahan
+  startY = addText(`ETD/ETA: ${formattedETD} / ${formattedETA}`, margin, startY, 10); 
+  startY += 7; 
 
   // Tabel Charges
   if (selectedInvoice.charges && selectedInvoice.charges.length > 0) {
     autoTable(doc, {
       startY: startY,
-      head: [["Charge Description", "Amount"]], // Header tabel tetap seperti semula
+      head: [["Charge Description", "Amount"]], 
       body: selectedInvoice.charges.map((charge) => [
-        charge.description.toUpperCase(), // Deskripsi diubah menjadi huruf kapital
+        charge.description.toUpperCase(), 
         `IDR ${formatCurrency(charge.amount)}`,
       ]),
       theme: "grid",
       styles: { 
-        fontSize: 9, // Ukuran font lebih kecil
+        fontSize: 9,
         halign: "center",
-        cellPadding: 2, // Padding cell lebih kecil
+        cellPadding: 2, 
       },
       headStyles: {
-        fontSize: 9, // Ukuran font lebih kecil
-        fillColor: [200, 200, 200] // Warna abu-abu untuk header tabel
+        fontSize: 9, 
+        fillColor: [200, 200, 200] 
       },
-      margin: { top: 7 } // Margin atas tabel lebih kecil
+      margin: { top: 7 } 
     });
-    startY = doc.lastAutoTable.finalY + 7; // Update startY jika tabel dibuat
+    startY = doc.lastAutoTable.finalY + 7; 
   } else {
     startY = addText("No charges available.", margin, startY);
   }
@@ -142,15 +137,8 @@ export const generatePdf = async (selectedInvoice, formatCurrency) => {
     startY = addText(`Total Amount: IDR ${formatCurrency(totalAmount)}`, margin, startY, 10, 'bold');
   }
 
-  // // Footer
+  // Footer
   startY += 7; // Beri jarak tambahan
-  // startY = addText("PAYMENT SHOULD BE RECEIVED IN FULL AMOUNT", margin, startY, 10, 'bold');
-  // startY = addText("CV. MANDIRI BERSAMA", margin, startY, 10);
-  // startY = addText("IDR REK No: 1400012299286", margin, startY, 10);
-  // startY = addText("BANK MANDIRI Cab. Surabaya Niaga.", margin, startY, 10);
-  // startY += 7; // Beri jarak tambahan
-
-
 
 // Generate QR Code
 try {
