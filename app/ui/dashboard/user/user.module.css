@@ -18,7 +18,6 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-
 }
 
 .table { 
@@ -34,26 +33,21 @@
     align-items: center;
     gap: 10px;
     font-weight: bold;
-
 }
 
-.buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.button {
-    padding: 5px 10px;
+.statusButton {
+    padding: 5px 15px;
     border-radius: 5px;
-    color: var(--text);
+    color: white;
     border: none;
     cursor: pointer;
+    font-weight: bold;
 }
 
-.view {
-    background-color: teal;
+.active {
+    background-color: green;
 }
 
-.delete {
-    background-color: crimson;
+.inactive {
+    background-color: red;
 }

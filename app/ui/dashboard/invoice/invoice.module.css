@@ -11,7 +11,7 @@
     justify-content: space-between;
 }
 
-.addButton {
+/* .addButton {
     padding: 10px;
     background-color: burlywood;
     color: var(--text);
@@ -19,7 +19,7 @@
     border-radius: 5px;
     cursor: pointer;
 
-}
+} */
 
 .table { 
     width: 100%;
@@ -44,7 +44,7 @@
 .button {
     padding: 5px 10px;
     border-radius: 5px;
-    color: var(--text);
+    color: white;
     border: none;
     cursor: pointer;
 }
@@ -59,78 +59,223 @@
 
 
 .popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
-  .popupContent {
-    background: white;
-    padding: 20px;
-    border-radius: 5px;
-    width: 400px;
-    text-align: center;
-    position: relative;
-  }
-  
-  .closeButton {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-  }
-  
-  .actions {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .downloadButton {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-  
-  .deleteButton {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    border-radius: 5px;
-  }
-
-.input {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
 }
 
-.updateButton {
-  background: #2db965;
+.popupContent {
+  background: #e8e8e8;
+  padding: 32px;
+  border-radius: 12px;
+  width: 700px;  /* Increased from 500px */
+  max-width: 95%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: slideIn 0.3s ease-out;
+}
+
+.popupContent h2 {
+  margin: 0 0 24px 0;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.popupContent hr {
+  border: none;
+  border-top: 1px solid #eee;
+  margin: 20px 0;
+}
+
+.popupContent h4 {
+  color: #555;
+  margin: 16px 0;
+}
+
+.popupContent ul {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+}
+
+.popupContent li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.popupContent li button {
+  background: #ff4757;
   color: white;
   border: none;
-  padding: 10px 15px;
+  border-radius: 4px;
+  width: 24px;
+  height: 24px;
   cursor: pointer;
-  border-radius: 5px;
+  transition: background 0.2s;
 }
 
-.updateButton:hover {
-  background: #0056b3;
+.popupContent li button:hover {
+  background: #ff6b81;
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.closeButton:hover {
+  background: #f1f1f1;
+}
+
+/* New email input container */
+.emailInputContainer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.input {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid #e1e1e1;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.downloadButton,
+.deleteButton,
+.addButton {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.downloadButton {
+  background: #007bff;
+  color: black;
+  flex: 1;
+}
+
+.downloadButton:hover {
+  background: #0069d9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.deleteButton {
+  background: #dc3545;
+  color: black;
+  flex: 1;
+}
+
+.deleteButton:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+}
+
+.addButton {
+  background: burlywood;
+  color: black;
+  padding: 12px 24px;
+  white-space: nowrap;
+}
+
+.addButton:hover {
+  background: rgb(234, 172, 90);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Add responsive styles */
+@media (max-width: 768px) {
+  .popupContent {
+    padding: 24px;
+    width: 95%;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .downloadButton,
+  .deleteButton {
+    width: 100%;
+  }
+  
+  .emailInputContainer {
+    flex-direction: column;
+  }
+  
+  .addButton {
+    width: 100%;
+    margin-left: 0;
+  }
 }

@@ -1,0 +1,103 @@
+.container {
+    background-color: var(--bgSoft);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+
+.heading {
+    color: #333;
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.tableContainer {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.table th, .table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+}
+
+.table th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.chargeTable, .emailTable {
+    width: 50%;
+    margin-top: 10px;
+}
+
+.chargeTable th, .chargeTable td, 
+.emailTable th, .emailTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.chargeTable th, .emailTable th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.addBtn, .removeBtn, .submitBtn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.addBtn {
+    background-color: #28a745;
+    color: white;
+}
+
+.removeBtn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.submitBtn {
+    background-color: burlywood;
+    color: var( --text);
+    width: 100%;
+    margin-top: 20px;
+}
+
+.addBtn:hover {
+    background-color: #218838;
+}
+
+.removeBtn:hover {
+    background-color: #c82333;
+}
+
+.submitBtn:hover {
+    background-color: rgb(234, 172, 90)
+}

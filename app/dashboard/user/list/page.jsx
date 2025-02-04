@@ -22,12 +22,10 @@ const ListUser = () => {
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.admin_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.admin_email.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
-  });
+  const filteredUsers = users.filter((user) =>
+    user.admin_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    user.admin_email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const toggleUserStatus = async (admin_id, is_active) => {
     try {
@@ -48,8 +46,6 @@ const ListUser = () => {
           user.admin_id === admin_id ? { ...user, is_active: !is_active } : user
         )
       );
-
-      alert('Status user berhasil diubah');
     } catch (error) {
       console.error('Error:', error);
       alert(error.message);
@@ -73,26 +69,20 @@ const ListUser = () => {
             <td>Name</td>
             <td>Email</td>
             <td>Status</td>
-            <td>Action</td>
           </tr>
         </thead>
         <tbody>
           {filteredUsers.map((user) => (
             <tr key={user.admin_id}>
-              <td>
-                <div className={styles.user}>{user.admin_name}</div>
-              </td>
+              <td>{user.admin_name}</td>
               <td>{user.admin_email}</td>
-              <td>{user.is_active ? 'Active' : 'Non-Active'}</td>
               <td>
-                <div className={styles.buttons}>
-                  <button
-                    className={`${styles.button} ${user.is_active ? styles.deactivate : styles.activate}`}
-                    onClick={() => toggleUserStatus(user.admin_id, user.is_active)}
-                  >
-                    {user.is_active ? 'Non-Active' : 'Activate'}
-                  </button>
-                </div>
+                <button
+                  className={`${styles.statusButton} ${user.is_active ? styles.active : styles.inactive}`}
+                  onClick={() => toggleUserStatus(user.admin_id, user.is_active)}
+                >
+                  {user.is_active ? 'Active' : 'Non-Active'}
+                </button>
               </td>
             </tr>
           ))}

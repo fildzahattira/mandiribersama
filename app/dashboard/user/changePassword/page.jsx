@@ -1,26 +1,38 @@
 "use client";
 
 import { useState } from "react";
-import styles from "@/app/ui/dashboard/user/user.module.css";
+import styles from "@/app/ui/dashboard/user/changePassword.module.css";
 
 const ChangePassword = () => {
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // Tambahkan state untuk loading
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
-    setError("");
-    setIsLoading(true); // Set loading menjadi true
+    setIsLoading(true);
 
     const current_password = e.target.current_password.value;
     const new_password = e.target.new_password.value;
     const confirm_password = e.target.confirm_password.value;
 
+    // Validasi password baru
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{7,}$/;
+    if (!passwordRegex.test(new_password)) {
+      alert(
+        "The new password must be at least 7 characters long, containing uppercase letters, lowercase letters, numbers, and special characters."
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    if (new_password !== confirm_password) {
+      alert("The new password and confirmation password do not match.");
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch("/api/auth", {
-        method: "PUT", // Method PUT
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -30,16 +42,19 @@ const ChangePassword = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message);
-        e.target.reset();
+        alert("Password changed successfully. You will be logged out.");
+        // Logout pengguna dengan memanggil API logout
+        await fetch("/api/auth/logout", { method: "POST" });
+        // Redirect ke halaman login menggunakan window.location
+        window.location.href = "/login";
       } else {
-        setError(data.error);
+        alert(data.error || "Failed to change password.");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      setError("An error occurred. Please try again later.");
+      alert("An error occurred. Please try again later.");
     } finally {
-      setIsLoading(false); // Set loading menjadi false setelah selesai (baik sukses maupun error)
+      setIsLoading(false);
     }
   };
 
@@ -51,32 +66,30 @@ const ChangePassword = () => {
             <tr>
               <td>Current Password</td>
               <td>
-                <input type="password" name="current_password" required /> {/* Tambahkan required */}
+                <input type="password" name="current_password" required />
               </td>
             </tr>
             <tr>
               <td>New Password</td>
               <td>
-                <input type="password" name="new_password" required /> {/* Tambahkan required */}
+                <input type="password" name="new_password" required />
               </td>
             </tr>
             <tr>
               <td>Confirm Password</td>
               <td>
-                <input type="password" name="confirm_password" required /> {/* Tambahkan required */}
+                <input type="password" name="confirm_password" required />
               </td>
             </tr>
             <tr>
               <td colSpan="2">
-                <button type="submit" disabled={isLoading}> {/* Disable button saat loading */}
-                  {isLoading ? "Loading..." : "Change"} {/* Tampilkan teks loading */}
+                <button type="submit" disabled={isLoading}>
+                  {isLoading ? "Loading..." : "Change"}
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
-        {message && <p style={{ color: 'green' }}>{message}</p>}
-        {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
     </div>
   );
