@@ -35,7 +35,7 @@ export async function POST(req) {
    return new NextResponse(JSON.stringify({ error: "Invalid credentials" }), { status: 401 });
    }
   
-  const token = sign({ id: admin.admin_id, name: admin.admin_name }, JWT_SECRET, { expiresIn: "2h" });
+  const token = sign({ id: admin.admin_id, name: admin.admin_name, role: admin.admin_role }, JWT_SECRET, { expiresIn: "2h" });
   
   return new NextResponse(JSON.stringify({ message: "Login successful!" }), {
   status: 200,
