@@ -241,16 +241,18 @@ const ListInvoice = () => {
 
             {/* Input untuk menambahkan email baru */}
             {/* <h3>Add new email access</h3> */}
-            <input
-              type="email"
-              placeholder="Type here new email access..."
-              value={emailAccess}
-              onChange={handleEmailChange}
-              className={styles.input}
-            />
-            <button onClick={handleAddEmail} className={styles.addButton}>
-              Add Email
-            </button>
+            <div className={styles.emailInputContainer}>
+              <input
+                type="email"
+                placeholder="Type here new email access..."
+                value={emailAccess}
+                onChange={handleEmailChange}
+                className={styles.input}
+              />
+              <button onClick={handleAddEmail} className={styles.addButton}>
+                Add Email
+              </button>
+            </div>
 
             <br />
             <div className={styles.actions}>

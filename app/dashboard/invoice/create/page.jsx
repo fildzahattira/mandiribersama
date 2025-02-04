@@ -116,7 +116,7 @@ const CreateInvoice = () => {
                             <label>Invoice Date</label>
                         </td>
                         <td>
-                            <input type="date" id="invoice_date" name="invoice_date" />
+                            <input className={styles.input} type="date" id="invoice_date" name="invoice_date" />
                         </td>
                     </tr>
                     <tr>
@@ -124,7 +124,7 @@ const CreateInvoice = () => {
                             <label>Client Name</label>
                         </td>
                         <td>
-                            <input type="text" id="client_name" name="client_name" />
+                            <input className={styles.input} type="text" id="client_name" name="client_name" />
                         </td>
                     </tr>
                     <tr>
@@ -132,7 +132,7 @@ const CreateInvoice = () => {
                             <label>Client Address</label>
                         </td>
                         <td>
-                            <input type="text" id="client_address" name="client_address" />
+                            <input className={styles.input} type="text" id="client_address" name="client_address" />
                         </td>
                     </tr>
                     <tr>
@@ -140,7 +140,7 @@ const CreateInvoice = () => {
                             <label>Forwarding Vessel</label>
                         </td>
                         <td>
-                            <input type="text" id="forwarding_vessel" name="forwarding_vessel" />
+                            <input className={styles.input} type="text" id="forwarding_vessel" name="forwarding_vessel" />
                         </td>
                     </tr>
                     <tr>
@@ -148,7 +148,7 @@ const CreateInvoice = () => {
                             <label>Port of Discharge</label>
                         </td>
                         <td>
-                            <input type="text" id="port_of_discharge" name="port_of_discharge" />
+                            <input className={styles.input} type="text" id="port_of_discharge" name="port_of_discharge" />
                         </td>
                     </tr>
                     <tr>
@@ -156,7 +156,7 @@ const CreateInvoice = () => {
                             <label>Port of Loading</label>
                         </td>
                         <td>
-                            <input type="text" id="port_of_loading" name="port_of_loading" />
+                            <input className={styles.input} type="text" id="port_of_loading" name="port_of_loading" />
                         </td>
                     </tr>
                     <tr>
@@ -164,7 +164,7 @@ const CreateInvoice = () => {
                             <label>Bill Lading</label>
                         </td>
                         <td>
-                            <input type="text" id="bill_lading" name="bill_lading" />
+                            <input className={styles.input} type="text" id="bill_lading" name="bill_lading" />
                         </td>
                     </tr>
                     <tr>
@@ -172,7 +172,7 @@ const CreateInvoice = () => {
                             <label>Shipper</label>
                         </td>
                         <td>
-                            <input type="text" id="shipper" name="shipper" />
+                            <input className={styles.input} type="text" id="shipper" name="shipper" />
                         </td>
                     </tr>
                     <tr>
@@ -180,7 +180,7 @@ const CreateInvoice = () => {
                             <label>Consignee</label>
                         </td>
                         <td>
-                            <input type="text" id="consignee" name="consignee" />
+                            <input className={styles.input} type="text" id="consignee" name="consignee" />
                         </td>
                     </tr>
                     <tr>
@@ -188,7 +188,7 @@ const CreateInvoice = () => {
                             <label>Measurement</label>
                         </td>
                         <td>
-                            <input type="text" id="measurement" name="measurement" />
+                            <input className={styles.input} type="text" id="measurement" name="measurement" />
                         </td>
                     </tr>
                     <tr>
@@ -196,7 +196,7 @@ const CreateInvoice = () => {
                             <label>Cargo Description</label>
                         </td>
                         <td>
-                            <input type="text" id="cargo_description" name="cargo_description" />
+                            <input className={styles.input} type="text" id="cargo_description" name="cargo_description" />
                         </td>
                     </tr>
                     <tr>
@@ -204,7 +204,7 @@ const CreateInvoice = () => {
                             <label>Estimate Time Departure</label>
                         </td>
                         <td>
-                            <input type="date" id="etd" name="etd" />
+                            <input className={styles.input} type="date" id="etd" name="etd" />
                         </td>
                     </tr>
                     <tr>
@@ -212,7 +212,7 @@ const CreateInvoice = () => {
                             <label>Estimate Time Arrival</label>
                         </td>
                         <td>
-                            <input type="date" id="eta" name="eta" />
+                            <input className={styles.input} type="date" id="eta" name="eta" />
                         </td>
                     </tr>
                     {/* <tr>
@@ -243,6 +243,7 @@ const CreateInvoice = () => {
                         <tr key={index}>
                             <td>
                                 <input
+                                    className={styles.input}
                                     type="text"
                                     name={`description_${index}`}
                                     value={charge.description}
@@ -253,6 +254,7 @@ const CreateInvoice = () => {
                             </td>
                             <td>
                                 <input
+                                    className={styles.input}
                                     type="number"
                                     name={`amount_${index}`}
                                     value={charge.amount}
@@ -295,6 +297,7 @@ const CreateInvoice = () => {
             <tr key={index}>
                 <td>
                     <input
+                        className={styles.input}
                         type="email"
                         name={`email_${index}`}
                         value={email}

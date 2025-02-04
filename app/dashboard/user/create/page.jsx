@@ -1,13 +1,13 @@
 "use client";
 import { useState } from 'react';
-import styles from "@/app/ui/dashboard/user/user.module.css";
+import styles from "@/app/ui/dashboard/user/createUser.module.css";
 
 const CreateUser = () => {
   const [formData, setFormData] = useState({
     admin_name: '',
     admin_email: '',
     admin_password: '',
-    admin_role: ''
+    admin_role: 'Admin',
   });
 
   const handleChange = (e) => {
@@ -20,6 +20,7 @@ const CreateUser = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Form Data:", formData); // Debugging
     try {
       const response = await fetch('/api/user', {
         method: 'POST',
@@ -46,7 +47,7 @@ const CreateUser = () => {
 
   return (
     <div className={styles.container}>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className={styles.formContainer}>
         <table>
           <tbody>
             <tr>
