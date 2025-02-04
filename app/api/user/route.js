@@ -19,13 +19,25 @@ export async function GET() {
 export async function POST(request) {
     try {
         const { admin_name, admin_email, admin_password, admin_role } = await request.json();
-
-        // Hash password sebelum disimpan
-        const hashedPassword = await bcrypt.hash(admin_password, SALT_ROUNDS);
+        console.log({ admin_name, admin_email, admin_password, admin_role });
 
         const db = await createConnection();
-        const sql = "INSERT INTO admin (admin_name, admin_email, admin_password, admin_role, is_active) VALUES (?, ?, ?, ?)";
-        const [result] = await db.execute(sql, [admin_name, admin_email, hashedPassword, admin_role, true]); 
+
+        const [nameCheck] = await db.query("SELECT admin_name FROM admin WHERE admin_name = ?", [admin_name]);
+        if (nameCheck.length > 0) {
+            return NextResponse.json({ error: 'Username already exists' }, { status: 400 });
+        }
+
+        const [emailCheck] = await db.query("SELECT admin_email FROM admin WHERE admin_email = ?", [admin_email]);
+        if (emailCheck.length > 0) {
+            return NextResponse.json({ error: 'Email already exists' }, { status: 400 });
+        }
+
+        const hashedPassword = await bcrypt.hash(admin_password, SALT_ROUNDS);
+
+        const sql = "INSERT INTO admin (admin_name, admin_email, admin_password, admin_role, is_active) VALUES (?, ?, ?, ?, ?)";
+        const [result] = await db.execute(sql, [admin_name, admin_email, hashedPassword, admin_role, true]);
+
 
         return NextResponse.json({ message: 'User added successfully', id: result.insertId });
     } catch (error) {
