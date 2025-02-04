@@ -15,9 +15,20 @@ export async function middleware(req) {
   }
 
   try {
-    // Verify the JWT using jose
+    
     const { payload } = await jwtVerify(token, JWT_SECRET);
-    console.log("Decoded token payload:", payload); // Debugging the payload
+    console.log("Decoded token payload:", payload); 
+
+    // Extract role from payload
+    const adminRole = payload.role; 
+
+    // Cek apakah user mengakses dashboard/user/
+    if (req.nextUrl.pathname.startsWith("/dashboard/user/create") || req.nextUrl.pathname.startsWith("/dashboard/user/list")) {
+      if (adminRole !== "Super Admin") {
+        console.error("Unauthorized access. Redirecting to dashboard.");
+        return NextResponse.redirect(new URL("/dashboard", req.url));
+      }
+    }
 
     // If the token is valid, proceed to the next middleware or route
     return NextResponse.next();
