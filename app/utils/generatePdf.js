@@ -159,15 +159,19 @@ try {
 
   // Tambahkan teks footer terlebih dahulu
   startY = addText("PAYMENT SHOULD BE RECEIVED IN FULL AMOUNT", margin, startY, 10, 'bold');
-  startY = addText("CV. MANDIRI BERSAMA", margin, startY + 7, 10);
+  startY = addText("CV. MANDIRI BERSAMA", margin, startY, 10);
   startY = addText("IDR REK No: 1400012299286", margin, startY, 10);
   startY = addText("BANK MANDIRI Cab. Surabaya Niaga.", margin, startY, 10);
 
   // Tambahkan QR Code di bawah teks footer
   const qrCodeWidth = 30;
   const qrCodeX = doc.internal.pageSize.width - margin - qrCodeWidth; // QR Code di kanan
-  const qrCodeY = startY + 7; // QR Code di bawah teks terakhir
+  const qrCodeY = startY; // QR Code di bawah teks terakhir
   doc.addImage(qrCodeImage, 'PNG', qrCodeX, qrCodeY, qrCodeWidth, qrCodeHeight);
+
+  const qrInfoX = qrCodeX - 39; // Geser ke kiri agar rata dengan QR Code
+  const qrInfoY = qrCodeY + qrCodeHeight + 5; // Tambahkan jarak di bawah QR Code
+  addText("*Scan the QR code to validate invoice authenticity ", qrInfoX, qrInfoY, 8, 'bold');
 
 
 } catch (error) {
