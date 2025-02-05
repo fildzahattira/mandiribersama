@@ -11,6 +11,7 @@ const ListInvoice = () => {
   const [isPopupVisible, setIsPopupVisible] = useState(false); // State untuk menampilkan popup
   const [emailAccess, setEmailAccess] = useState(''); // State untuk input email baru
   const [searchQuery, setSearchQuery] = useState(''); // State untuk menyimpan kata kunci pencarian
+  const [adminRole, setAdminRole] = useState(''); // State untuk menyimpan role pengguna
 
   // Fungsi untuk memformat mata uang
   const formatCurrency = (value) => {
@@ -36,6 +37,22 @@ const ListInvoice = () => {
     };
 
     fetchInvoices(); // Jalankan fungsi fetch
+  }, []);
+
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        const response = await fetch("/api/auth", { credentials: "include" });
+        if (!response.ok) throw new Error("Failed to fetch user data");
+
+        const data = await response.json();
+        setAdminRole(data.admin_role); // Simpan role dari API ke state
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchAdminData();
   }, []);
 
   // Fungsi untuk memfilter invoice berdasarkan kata kunci
@@ -161,7 +178,7 @@ const ListInvoice = () => {
         setInvoices((prevInvoices) =>
           prevInvoices.filter((invoice) => invoice.invoice_id !== invoiceId)
         );
-        alert('Invoice deleted successfully');
+        alert('Invoice archived successfully');
         handleClosePopup(); // Tutup popup setelah berhasil menghapus
         // console.log('Invoice Soft Deleted:', invoiceId); // Debugging
       } else {
@@ -259,7 +276,7 @@ const ListInvoice = () => {
               <button onClick={handleDownloadPDF} className={styles.downloadButton}>
                 Download Invoice
               </button>
-              <button onClick={() => handleSoftDelete(selectedInvoice.invoice_id)} className={styles.deleteButton}>
+              <button onClick={() => handleSoftDelete(selectedInvoice.invoice_id)} className={styles.deleteButton} disabled={adminRole === 'Admin'}  title={adminRole === "Admin" ? "Super Admin Only" : ""}>
                 Archive Invoice
               </button>
             </div>
