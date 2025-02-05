@@ -13,7 +13,7 @@ export default function ValidationPage() {
 
     useEffect(() => {
         if (invoiceId) {
-            fetch(`/api/invoice?invoice_id=${invoiceId}`)
+            fetch(`/api/validationPage?invoice_id=${invoiceId}`)
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.error) {
