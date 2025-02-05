@@ -1,18 +1,30 @@
 import { createConnection } from 'app/lib/db';
 import { NextResponse } from 'next/server';
-
+import { verify } from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
+
+const JWT_SECRET = process.env.JWT_SECRET;
+
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const invoiceId = searchParams.get('invoice_id'); // Mengambil invoice_id dari query parameter
   const action = searchParams.get('action'); // Parameter untuk membedakan aksi (view_active, view_archived)
-
+  const token = request.cookies.get('token')?.value; // Ambil token dari cookies
+  
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     const db = await createConnection();
 
+    // Verifikasi token untuk mendapatkan role dan admin_id
+    const decoded = verify(token, JWT_SECRET);
+    const adminId = decoded.id;
+    const adminRole = decoded.role;
+
     if (invoiceId) {
-      // If an invoice_id is provided, fetch details for that invoice
+      // Jika ada invoice_id, fetch detail invoice seperti sebelumnya
       const invoiceSql = `
         SELECT 
           i.invoice_id,
@@ -93,7 +105,7 @@ export async function GET(request) {
 
       return NextResponse.json(formattedInvoice);
     } else {
-      // If no invoice_id, fetch invoices based on action
+      // Jika tidak ada invoice_id, fetch invoices berdasarkan role admin
       let sql = `
         SELECT 
           invoice.invoice_id, 
@@ -106,8 +118,6 @@ export async function GET(request) {
           detail_invoice ON invoice.invoice_id = detail_invoice.invoice_id
         WHERE
           invoice.is_deleted = ? AND invoice.is_approve = ?
-        GROUP BY 
-          invoice.invoice_id, invoice.invoice_number, invoice.client_name;
       `;
 
       let isDeleted = false; 
@@ -124,8 +134,15 @@ export async function GET(request) {
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
       }
 
-      // Pass both isDeleted and isApprove as parameters
-      const [invoices] = await db.query(sql, [isDeleted, isApprove]);
+      // Tambahkan kondisi berdasarkan role admin
+      if (adminRole === 'Admin') {
+        sql += ` AND invoice.admin_id = ?`;
+      }
+
+      sql += ` GROUP BY invoice.invoice_id, invoice.invoice_number, invoice.client_name;`;
+
+      // Eksekusi query dengan parameter yang sesuai
+      const [invoices] = await db.query(sql, [isDeleted, isApprove, adminId]);
 
       return NextResponse.json(invoices);
     }
