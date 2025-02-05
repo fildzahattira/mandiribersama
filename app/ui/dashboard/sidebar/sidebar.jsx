@@ -6,6 +6,7 @@ import {
   FaFileInvoiceDollar,
   FaListUl,
   FaUserFriends,
+  FaArchive,
 } from "react-icons/fa";
 import {
   MdOutlineAccountCircle,
@@ -37,6 +38,11 @@ const menuItems = [
         title: "List Invoice",
         path: "/dashboard/invoice/list",
         icon: <FaListUl />,
+      },
+      {
+        title: "Archive Invoice",
+        path: "/dashboard/invoice/archive",
+        icon: <FaArchive />,
       },
     ],
   },
