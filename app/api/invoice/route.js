@@ -111,11 +111,14 @@ export async function GET(request) {
           invoice.invoice_id, 
           invoice.invoice_number, 
           invoice.client_name, 
-          SUM(detail_invoice.amount) AS total_amount
+          SUM(detail_invoice.amount) AS total_amount,
+          admin.admin_name
         FROM 
           invoice
         LEFT JOIN 
           detail_invoice ON invoice.invoice_id = detail_invoice.invoice_id
+        LEFT JOIN 
+          admin ON invoice.admin_id = admin.admin_id
         WHERE
           invoice.is_deleted = ? AND invoice.is_approve = ?
       `;

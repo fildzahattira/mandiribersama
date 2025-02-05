@@ -53,6 +53,10 @@
     background-color: teal;
 }
 
+.preview{
+  background-color: rgb(133, 197, 7);
+}
+
 /* .delete {
     background-color: crimson;
 } */
