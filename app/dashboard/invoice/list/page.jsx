@@ -277,7 +277,7 @@ const ListInvoice = () => {
                 Download Invoice
               </button>
               <button onClick={() => handleSoftDelete(selectedInvoice.invoice_id)} className={styles.deleteButton} disabled={adminRole === 'Admin'}  title={adminRole === "Admin" ? "Super Admin Only" : ""}>
-                Archive Invoice
+                Delete Invoice
               </button>
             </div>
           </div>
