@@ -33,7 +33,8 @@ const LoginPage = () => {
   return (
     <div className={styles.container}>
       <form onSubmit={handleSubmit} className={styles.form}>
-        <h1>CV. Mandiri Bersama</h1>
+        {/* <h1>CV. Mandiri Bersama</h1> */}
+        <img src="/logo_polos.png" alt="CV. Mandiri Bersama" className={styles.logo} />
         {error && <p style={{ color: "red", fontWeight: "bold" }}>{error}</p>} {/* Tampilkan pesan error */}
         <input
           type="text"
