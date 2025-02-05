@@ -105,23 +105,27 @@ export async function GET(request) {
         LEFT JOIN 
           detail_invoice ON invoice.invoice_id = detail_invoice.invoice_id
         WHERE
-          invoice.is_deleted = ? 
+          invoice.is_deleted = ? AND invoice.is_approve = ?
         GROUP BY 
           invoice.invoice_id, invoice.invoice_number, invoice.client_name;
       `;
 
-      let isDeleted = false; // Default to active invoices
+      let isDeleted = false; 
+      let isApprove = true;
 
       if (action === 'is_deleted') {
-        isDeleted = true; // Fetch archived invoices
+        isDeleted = true && isApprove; 
       } else if (action === 'is_list') {
-        isDeleted = false; // Fetch only active invoices
+        isDeleted = false && isApprove; 
+      } else if (action === 'is_approve') {
+        isApprove = false;
       } else {
         // Default case: action not provided or invalid
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
       }
 
-      const [invoices] = await db.query(sql, [isDeleted]);
+      // Pass both isDeleted and isApprove as parameters
+      const [invoices] = await db.query(sql, [isDeleted, isApprove]);
 
       return NextResponse.json(invoices);
     }
@@ -138,7 +142,7 @@ export async function POST(request) {
       const {
           invoice_date, client_name, client_address, forwarding_vessel,
           port_of_discharge, port_of_loading, bill_lading, shipper,
-          consignee, measurement, cargo_description, etd, eta, admin_id,
+          consignee, measurement, cargo_description, etd, eta, admin_id, is_approve,
           charges, emails
       } = await request.json();
 
@@ -165,12 +169,12 @@ export async function POST(request) {
           INSERT INTO invoice 
           (invoice_id, invoice_number, invoice_date, client_name, client_address, forwarding_vessel, 
           port_of_discharge, port_of_loading, bill_lading, shipper, consignee, 
-          measurement, cargo_description, etd, eta, admin_id) 
-          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+          measurement, cargo_description, etd, eta, admin_id, is_approve) 
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
       const [result] = await db.execute(sqlInvoice, [
           invoiceId, invoiceNumber, invoice_date, client_name, client_address, forwarding_vessel,
           port_of_discharge, port_of_loading, bill_lading, shipper, consignee,
-          measurement, cargo_description, etd, eta, admin_id
+          measurement, cargo_description, etd, eta, admin_id, is_approve
       ]);
 
       // Insert charges dengan UUID
@@ -236,7 +240,17 @@ export async function PUT(request) {
       } else {
         return NextResponse.json({ error: 'Invoice not found or already active' }, { status: 404 });
       }
-    }else if (action === 'add_email') {
+    } else if (action === 'approve') {
+      // Logika untuk restore invoice
+      const sql = 'UPDATE invoice SET is_approve = TRUE WHERE invoice_id = ?';
+      const [result] = await db.query(sql, [invoiceId]);
+
+      if (result.affectedRows > 0) {
+        return NextResponse.json({ message: 'Invoice approved successfully' });
+      } else {
+        return NextResponse.json({ error: 'Invoice not found or already approve' }, { status: 404 });
+      }
+    } else if (action === 'add_email') {
       // Logika untuk menambahkan email baru
       const { email } = await request.json(); // Ambil email baru dari body request
 

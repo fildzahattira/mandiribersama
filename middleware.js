@@ -23,7 +23,7 @@ export async function middleware(req) {
     const adminRole = payload.role; 
 
     // Cek apakah user mengakses dashboard/user/
-    if (req.nextUrl.pathname.startsWith("/dashboard/user/create") || req.nextUrl.pathname.startsWith("/dashboard/user/list")) {
+    if (req.nextUrl.pathname.startsWith("/dashboard/user/create") || req.nextUrl.pathname.startsWith("/dashboard/user/list") || req.nextUrl.pathname.startsWith("/dashboard/invoice/approve") || req.nextUrl.pathname.startsWith("/dashboard/invoice/archive")) {
       if (adminRole !== "Super Admin") {
         console.error("Unauthorized access. Redirecting to dashboard.");
         return NextResponse.redirect(new URL("/dashboard", req.url));
