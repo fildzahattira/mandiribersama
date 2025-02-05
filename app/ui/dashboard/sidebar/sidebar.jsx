@@ -7,6 +7,7 @@ import {
   FaListUl,
   FaUserFriends,
   FaArchive,
+  FaKey,
 } from "react-icons/fa";
 import {
   MdOutlineAccountCircle,
@@ -40,9 +41,16 @@ const menuItems = [
         icon: <FaListUl />,
       },
       {
+        title: "Approval Invoice",
+        path: "/dashboard/invoice/approve",
+        icon: <FaKey />,
+        restricted: true, 
+      },
+      {
         title: "Archive Invoice",
         path: "/dashboard/invoice/archive",
         icon: <FaArchive />,
+        restricted: true, 
       },
     ],
   },

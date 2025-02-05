@@ -79,6 +79,7 @@ const CreateInvoice = () => {
             etd: document.getElementById('etd').value,
             eta: document.getElementById('eta').value,
             admin_id: adminId,
+            is_approve: false,
             charges,
             emails,
         };
@@ -91,7 +92,7 @@ const CreateInvoice = () => {
             });
             const result = await response.json();
             if (response.ok) {
-                alert('Invoice with number ' + result.invoice_number + ' created successfully');
+                alert('Invoice with number ' + result.invoice_number + ' created successfully. \n' + 'Contact super admin to approve');
                 window.location.href = '/dashboard/invoice/list'; // Redirect ke halaman daftar invoice
             } else {
                 alert('Failed to create invoice: ' + result.error);
