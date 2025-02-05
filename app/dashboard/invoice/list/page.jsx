@@ -21,7 +21,7 @@ const ListInvoice = () => {
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const response = await fetch('/api/invoice'); // Panggil API untuk mendapatkan daftar invoice
+        const response = await fetch(`/api/invoice?action=is_list`); // Panggil API untuk mendapatkan daftar invoice
         const data = await response.json();
   
         const sortedInvoices = data.sort((a, b) => {
@@ -260,7 +260,7 @@ const ListInvoice = () => {
                 Download Invoice
               </button>
               <button onClick={() => handleSoftDelete(selectedInvoice.invoice_id)} className={styles.deleteButton}>
-                Delete Invoice
+                Archive Invoice
               </button>
             </div>
           </div>

@@ -6,12 +6,13 @@ import { v4 as uuidv4 } from 'uuid';
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const invoiceId = searchParams.get('invoice_id'); // Mengambil invoice_id dari query parameter
+  const action = searchParams.get('action'); // Parameter untuk membedakan aksi (view_active, view_archived)
 
   try {
     const db = await createConnection();
 
     if (invoiceId) {
-      // Jika ada invoice_id, ambil detail invoice berdasarkan invoice_id
+      // If an invoice_id is provided, fetch details for that invoice
       const invoiceSql = `
         SELECT 
           i.invoice_id,
@@ -42,7 +43,7 @@ export async function GET(request) {
         return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
       }
 
-      // Ambil data charges dari tabel detail_invoice
+      // Fetch charges and emails as usual
       const chargesSql = `
         SELECT 
           description,
@@ -54,7 +55,6 @@ export async function GET(request) {
       `;
       const [chargesData] = await db.query(chargesSql, [invoiceId]);
 
-      // Ambil data email dari tabel access_invoice
       const emailSql = `
         SELECT 
           email
@@ -65,7 +65,7 @@ export async function GET(request) {
       `;
       const [emailData] = await db.query(emailSql, [invoiceId]);
 
-      // Format data invoice, charges, dan emails
+      // Format and return invoice data
       const formattedInvoice = {
         invoice_id: invoiceData[0].invoice_id,
         invoice_number: invoiceData[0].invoice_number,
@@ -84,8 +84,8 @@ export async function GET(request) {
         eta: invoiceData[0].eta,
         qr_code: invoiceData[0].qr_code,
         admin_id: invoiceData[0].admin_id,
-        access_email: emailData.map(row => ({ email: row.email })),  // Ambil semua email
-        charges: chargesData.map(row => ({  // Ambil semua charges
+        access_email: emailData.map(row => ({ email: row.email })),
+        charges: chargesData.map(row => ({
           description: row.description,
           amount: row.amount,
         })),
@@ -93,9 +93,9 @@ export async function GET(request) {
 
       return NextResponse.json(formattedInvoice);
     } else {
-      // Jika tidak ada invoice_id, ambil semua invoice
-      const sql = `
-        SELECT
+      // If no invoice_id, fetch invoices based on action
+      let sql = `
+        SELECT 
           invoice.invoice_id, 
           invoice.invoice_number, 
           invoice.client_name, 
@@ -105,11 +105,23 @@ export async function GET(request) {
         LEFT JOIN 
           detail_invoice ON invoice.invoice_id = detail_invoice.invoice_id
         WHERE
-          invoice.is_deleted = FALSE
+          invoice.is_deleted = ? 
         GROUP BY 
           invoice.invoice_id, invoice.invoice_number, invoice.client_name;
       `;
-      const [invoices] = await db.query(sql);
+
+      let isDeleted = false; // Default to active invoices
+
+      if (action === 'is_deleted') {
+        isDeleted = true; // Fetch archived invoices
+      } else if (action === 'is_list') {
+        isDeleted = false; // Fetch only active invoices
+      } else {
+        // Default case: action not provided or invalid
+        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+      }
+
+      const [invoices] = await db.query(sql, [isDeleted]);
 
       return NextResponse.json(invoices);
     }
@@ -118,6 +130,7 @@ export async function GET(request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
 
 export async function POST(request) {
   let db;
@@ -213,7 +226,17 @@ export async function PUT(request) {
       } else {
         return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
       }
-    } else if (action === 'add_email') {
+    } else if (action === 'restore') {
+      // Logika untuk restore invoice
+      const sql = 'UPDATE invoice SET is_deleted = FALSE WHERE invoice_id = ?';
+      const [result] = await db.query(sql, [invoiceId]);
+
+      if (result.affectedRows > 0) {
+        return NextResponse.json({ message: 'Invoice restored successfully' });
+      } else {
+        return NextResponse.json({ error: 'Invoice not found or already active' }, { status: 404 });
+      }
+    }else if (action === 'add_email') {
       // Logika untuk menambahkan email baru
       const { email } = await request.json(); // Ambil email baru dari body request
 
