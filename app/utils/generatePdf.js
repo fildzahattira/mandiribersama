@@ -151,9 +151,18 @@ try {
   const footerBlockHeight = footerTextHeight + qrCodeHeight + 7; // Total tinggi footer (termasuk jarak)
 
   // Periksa apakah footer akan melebihi batas halaman
+  // const pageHeight = doc.internal.pageSize.height;
+  // if (startY + footerBlockHeight + margin > pageHeight) {
+  //   doc.addPage(); // Tambah halaman baru jika tidak cukup ruang
+  //   startY = margin; // Reset posisi Y di halaman baru
+  // }
+
   const pageHeight = doc.internal.pageSize.height;
-  if (startY + footerBlockHeight + margin > pageHeight) {
-    doc.addPage(); // Tambah halaman baru jika tidak cukup ruang
+  const estimatedFooterHeight = 40; // Perkirakan tinggi footer (teks + QR Code)
+  const availableSpace = pageHeight - startY - margin; // Ruang yang tersisa
+
+  if (availableSpace < estimatedFooterHeight) {
+    doc.addPage(); // Hanya tambah halaman jika benar-benar tidak cukup
     startY = margin; // Reset posisi Y di halaman baru
   }
 
