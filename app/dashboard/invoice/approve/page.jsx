@@ -2,12 +2,18 @@
 import { useEffect, useState } from 'react';
 import styles from '@/app/ui/dashboard/invoice/invoice.module.css';
 import Search from "@/app/ui/dashboard/search/search";
+import Pagination from "@/app/ui/dashboard/pagination/pagination";
+
 
 const ApproveInvoice = () => {
   const [invoices, setInvoices] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [isPreviewPopupVisible, setIsPreviewPopupVisible] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1); // State untuk halaman saat ini
+  const [itemsPerPage] = useState(15); // Jumlah item per halaman
+  
 
   useEffect(() => {
     const fetchNeedApproveInvoices = async () => {
@@ -25,31 +31,6 @@ const ApproveInvoice = () => {
 
   const formatCurrency = (value) => {
     return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
-  };
-
-  const handlePreviewClick = async (invoice) => {
-    try {
-      const response = await fetch(`/api/invoice?invoice_id=${invoice.invoice_id}`);
-      const data = await response.json();
-
-      if (response.ok) {
-        setSelectedInvoice(data);
-        setIsPreviewPopupVisible(true);
-      } else {
-        alert('Failed to get invoice details.');
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred while fetching invoice details.');
-    }
   };
 
   const handleApproveInvoice = async (invoiceId) => {
@@ -80,10 +61,47 @@ const ApproveInvoice = () => {
     invoice.client_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+   // Hitung total halaman
+   const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
+
+   // Ambil data untuk halaman saat ini
+   const indexOfLastItem = currentPage * itemsPerPage;
+   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+   const currentInvoices = filteredInvoices.slice(indexOfFirstItem, indexOfLastItem);
+   const handlePageChange = (page) => {
+     setCurrentPage(page);
+   };
+
+   const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   const calculateTotalAmount = (charges) => {
     return charges.reduce((total, charge) => total + Number(charge.amount), 0);
   };
+
   
+  const handlePreviewClick = async (invoice) => {
+    try {
+      const response = await fetch(`/api/invoice?invoice_id=${invoice.invoice_id}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setSelectedInvoice(data);
+        setIsPreviewPopupVisible(true);
+      } else {
+        alert('Failed to get invoice details.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while fetching invoice details.');
+    }
+  };
+
 
   return (
     <div className={styles.container}>
@@ -129,6 +147,12 @@ const ApproveInvoice = () => {
         </tbody>
       </table>
 
+      <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={handlePageChange}
+    />
+
       {/* Preview Popup */}
       {isPreviewPopupVisible && selectedInvoice && (
         <div className={styles.popup}>
@@ -136,92 +160,101 @@ const ApproveInvoice = () => {
             <button className={styles.closeButton} onClick={handleClosePopup}>
               &times;
             </button>
+            <h1 style={{ color: 'orange' }}>NEED APPROVE</h1>
             <h2>Preview Invoice No. {selectedInvoice.invoice_number}</h2>
             <hr />
 
             <div className={styles.invoiceDetails}>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <strong>Invoice Date:</strong> {formatDate(selectedInvoice.invoice_date)}
-                  <br />
-                  <strong>Client Name:</strong> {selectedInvoice.client_name}
-                  <br/>
-                  <strong>Client Address:</strong> {selectedInvoice.client_address}
-                  <br/>
-                  <strong>Vessel:</strong> {selectedInvoice.forwarding_vessel}
-                  <br/>
-                  
-                </div>
-                <div>
-                  <strong>Port of Loading:</strong> {selectedInvoice.port_of_loading}
-                  <br/>
-                  <strong>Port of Discharge:</strong> {selectedInvoice.port_of_discharge}
-                  <br/>
-                  <strong>Bill of Lading:</strong> {selectedInvoice.bill_lading}
-                  <br/>
-                  <strong>ETD:</strong> {formatDate(selectedInvoice.etd)}
-                  <br/>
-                  <strong>ETA:</strong> {formatDate(selectedInvoice.eta)}
-                </div>
-              </div>
+            <table className={styles.detailTable}>
+                <tbody>
+                  <tr>
+                    <td><strong>Invoice Date</strong></td>
+                    <td>{formatDate(selectedInvoice.invoice_date)}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Client Name</strong></td>
+                    <td>{selectedInvoice.client_name}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Client Address</strong></td>
+                    <td>{selectedInvoice.client_address}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Forwarding Vessel</strong></td>
+                    <td>{selectedInvoice.forwarding_vessel}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Port of Discharge</strong></td>
+                    <td>{selectedInvoice.port_of_discharge}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Port of Loading</strong></td>
+                    <td>{selectedInvoice.port_of_loading}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Bill Lading</strong></td>
+                    <td>{selectedInvoice.bill_lading}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Shipper</strong></td>
+                    <td>{selectedInvoice.shipper}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Consignee</strong></td>
+                    <td>{selectedInvoice.consignee}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Measurement</strong></td>
+                    <td>{selectedInvoice.measurement}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Cargo Description</strong></td>
+                    <td>{selectedInvoice.cargo_description}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>ETD</strong></td>
+                    <td>{formatDate(selectedInvoice.etd)}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>ETA</strong></td>
+                    <td>{formatDate(selectedInvoice.eta)}</td>
+                  </tr>
 
-              {/* <hr className="my-4"/> */}
-
-              <div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <strong>Shipper:</strong> {selectedInvoice.shipper}
-                    <br/>
-                    <strong>Consignee:</strong> {selectedInvoice.consignee}
-                  </div>
-                </div>
-              </div>
-
-              {/* <hr className="my-4"/> */}
-
-              <div>
-                <div>
-                  <strong>Description:</strong> {selectedInvoice.cargo_description}
-                  <br/>
-                  <strong>Measurement:</strong> {selectedInvoice.measurement}
-                </div>
-              </div>
+                </tbody>
+              </table>
 
               <hr className="my-4"/>
 
-              <div>
-                <h4>Charges</h4>
-                <table className="w-full">
-                  <thead>
-                    <tr>
-                      <th>Description</th>
-                      <th>Amount</th>
+              <h4>Charges</h4>
+              <table className={styles.detailTable}>
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedInvoice.charges.map((charge, index) => (
+                    <tr key={index}>
+                      <td>{charge.description}</td>
+                      <td>{formatCurrency(charge.amount)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {selectedInvoice.charges.map((charge, index) => (
-                      <tr key={index}>
-                        <td>{charge.description}</td>
-                        <td>Rp {formatCurrency(charge.amount)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div className="text-right mt-2">
-                  <strong>Total Amount:</strong> Rp {formatCurrency(calculateTotalAmount(selectedInvoice.charges))}
-                </div>
+                  ))}
+                </tbody>
+              </table>
+              <br/>
+              <div className="text-right mt-2">
+                <strong>Total Amount:</strong> Rp {formatCurrency(calculateTotalAmount(selectedInvoice.charges))}
               </div>
 
               <hr className="my-4"/>
 
-              <div>
-                <h4>Email Access</h4>
-                <ul>
-                  {selectedInvoice.access_email && selectedInvoice.access_email.map((email, index) => (
-                    <li key={index}>{email.email}</li>
-                  ))}
-                </ul>
-              </div>
+              <h4>Email Access</h4>
+              <ul>
+                {selectedInvoice.access_email && selectedInvoice.access_email.map((email, index) => (
+                  <li key={index}>{email.email}</li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>

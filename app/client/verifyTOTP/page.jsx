@@ -56,7 +56,9 @@ export default function verifyTOTP() {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.title}>Insert OTP</h1>
+        <img src="/logo_polos.png" alt="CV. Mandiri Bersama" className={styles.logo} />
+            <h1 className={styles.title}>Check your email for the OTP code.</h1>
+            <br/>
             <form onSubmit={handleSubmit} className={styles.form}>
                 <input
                     type="text"

@@ -110,122 +110,50 @@ const CreateInvoice = () => {
             <br/>
             <h3>Invoice Detail</h3>
             <br/>
-            <table>
-                <tbody>
-                    <tr>
-                        <td>
-                            <label>Invoice Date</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="date" id="invoice_date" name="invoice_date" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Client Name</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="text" id="client_name" name="client_name" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Client Address</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="text" id="client_address" name="client_address" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Forwarding Vessel</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="text" id="forwarding_vessel" name="forwarding_vessel" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Port of Discharge</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="text" id="port_of_discharge" name="port_of_discharge" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Port of Loading</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="text" id="port_of_loading" name="port_of_loading" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Bill Lading</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="text" id="bill_lading" name="bill_lading" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Shipper</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="text" id="shipper" name="shipper" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Consignee</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="text" id="consignee" name="consignee" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Measurement</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="text" id="measurement" name="measurement" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Cargo Description</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="text" id="cargo_description" name="cargo_description" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Estimate Time Departure</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="date" id="etd" name="etd" />
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <label>Estimate Time Arrival</label>
-                        </td>
-                        <td>
-                            <input className={styles.input} type="date" id="eta" name="eta" />
-                        </td>
-                    </tr>
-                    {/* <tr>
-                        <td>
-                            <label>Admin id</label>
-                        </td>
-                        <td>
-                            <input type="text" id="admin_id" name="admin_id" />
-                        </td>
-                    </tr> */}
-                </tbody>
-            </table>
+            <div className={styles.gridContainer}>
+                <div className={styles.gridItem}>
+                    <label>Invoice Date</label>
+                    <input className={styles.input} type="date" id="invoice_date" />
+
+                    <label>Client Name</label>
+                    <input className={styles.input} type="text" id="client_name" />
+
+                    <label>Client Address</label>
+                    <input className={styles.input} type="text" id="client_address" />
+
+                    <label>Forwarding Vessel</label>
+                    <input className={styles.input} type="text" id="forwarding_vessel" />
+
+                    <label>Port of Discharge</label>
+                    <input className={styles.input} type="text" id="port_of_discharge" />
+
+                    <label>Port of Loading</label>
+                    <input className={styles.input} type="text" id="port_of_loading" />
+
+                    <label>Bill Lading</label>
+                    <input className={styles.input} type="text" id="bill_lading" />
+                </div>
+                <div className={styles.gridItem}>
+                    
+                    <label>Shipper</label>
+                    <input className={styles.input} type="text" id="shipper" />
+
+                    <label>Consignee</label>
+                    <input className={styles.input} type="text" id="consignee" />
+
+                    <label>Measurement</label>
+                    <input className={styles.input} type="text" id="measurement" />
+
+                    <label>Cargo Description</label>
+                    <input className={styles.input} type="text" id="cargo_description" />
+
+                    <label>Estimate Time Departure</label>
+                    <input className={styles.input} type="date" id="etd" />
+
+                    <label>Estimate Time Arrival</label>
+                    <input className={styles.input} type="date" id="eta" />
+                </div>
+            </div>
             <br/>
             <hr/>
             <br/>
@@ -321,7 +249,7 @@ const CreateInvoice = () => {
     </tbody>
 </table>
 <button type="button" className={styles.addBtn} onClick={addEmailRow}>
-    Add Email
+    Add Row
 </button>
 <br/><br/>
 <button type="submit" className={styles.submitBtn} onClick={handleSubmit}>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import styles from '@/app/ui/dashboard/invoice/invoice.module.css';
 import Search from "@/app/ui/dashboard/search/search";
 import { generatePdf } from 'app/utils/generatePdf';
+import Pagination from "@/app/ui/dashboard/pagination/pagination"
 
 const ListInvoice = () => {
   const [invoices, setInvoices] = useState([]); // State untuk menyimpan daftar invoice
@@ -12,6 +13,12 @@ const ListInvoice = () => {
   const [emailAccess, setEmailAccess] = useState(''); // State untuk input email baru
   const [searchQuery, setSearchQuery] = useState(''); // State untuk menyimpan kata kunci pencarian
   const [adminRole, setAdminRole] = useState(''); // State untuk menyimpan role pengguna
+  const [isPreviewPopupVisible, setIsPreviewPopupVisible] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1); // State untuk halaman saat ini
+  const [itemsPerPage] = useState(15); // Jumlah item per halaman
+  
+
 
   // Fungsi untuk memformat mata uang
   const formatCurrency = (value) => {
@@ -29,14 +36,14 @@ const ListInvoice = () => {
           return a.invoice_number.localeCompare(b.invoice_number);
         });
   
-        setInvoices(sortedInvoices); // Simpan data yang sudah diurutkan ke state
-        console.log('Fetched and Sorted Invoices:', sortedInvoices); // Debugging
+        setInvoices(sortedInvoices); 
+        console.log('Fetched and Sorted Invoices:', sortedInvoices); 
       } catch (error) {
-        console.error('Error fetching invoices:', error); // Debugging
+        console.error('Error fetching invoices:', error); 
       }
     };
 
-    fetchInvoices(); // Jalankan fungsi fetch
+    fetchInvoices(); 
   }, []);
 
   useEffect(() => {
@@ -64,6 +71,17 @@ const ListInvoice = () => {
     return matchesSearch;
   });
 
+  // Hitung total halaman
+  const totalPages = Math.ceil(filteredInvoices.length / itemsPerPage);
+
+  // Ambil data untuk halaman saat ini
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentInvoices = filteredInvoices.slice(indexOfFirstItem, indexOfLastItem);
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   // Fungsi untuk menangani klik tombol "Detail"
   const handleDetailClick = async (invoice) => {
     try {
@@ -87,6 +105,7 @@ const ListInvoice = () => {
 
   // Fungsi untuk menutup popup
   const handleClosePopup = () => {
+    setIsPreviewPopupVisible(false);
     setIsPopupVisible(false);
     setSelectedInvoice(null);
     console.log('Popup Closed'); // Debugging
@@ -190,6 +209,38 @@ const ListInvoice = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+  
+  const calculateTotalAmount = (charges) => {
+    return charges.reduce((total, charge) => total + Number(charge.amount), 0);
+  };
+
+  
+  const handlePreviewClick = async (invoice) => {
+    try {
+      const response = await fetch(`/api/invoice?invoice_id=${invoice.invoice_id}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setSelectedInvoice(data);
+        setIsPreviewPopupVisible(true);
+      } else {
+        alert('Failed to get invoice details.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while fetching invoice details.');
+    }
+  };
+
+
+
   return (
     <div className={styles.container}>
       <div className={styles.top}>
@@ -207,15 +258,24 @@ const ListInvoice = () => {
             <td>Invoice Number</td>
             <td>Client Name</td>
             <td>Total Amount</td>
+            <td>Preview</td>
             <td>Action</td>
           </tr>
         </thead>
         <tbody>
-          {filteredInvoices.map((invoice) => (
+          {currentInvoices.map((invoice) => (
             <tr key={invoice.invoice_number}>
               <td>{invoice.invoice_number}</td>
               <td>{invoice.client_name}</td>
               <td>Rp {formatCurrency(invoice.total_amount)}</td>
+              <td>
+                <button
+                  className={`${styles.button} ${styles.preview}`}
+                  onClick={() => handlePreviewClick(invoice)}
+                >
+                  See Preview
+                </button>
+              </td>
               <td>
                 <div className={styles.buttons}>
                   <button
@@ -231,6 +291,12 @@ const ListInvoice = () => {
         </tbody>
       </table>
 
+          <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={handlePageChange}
+    />
+        
       {/* Popup Detail Invoice */}
       {isPopupVisible && selectedInvoice && (
         <div className={styles.popup}>
@@ -279,6 +345,112 @@ const ListInvoice = () => {
               <button onClick={() => handleSoftDelete(selectedInvoice.invoice_id)} className={styles.deleteButton} disabled={adminRole === 'Admin'}  title={adminRole === "Admin" ? "Super Admin Only" : ""}>
                 Delete Invoice
               </button>
+            </div>
+          </div>
+        </div>
+        
+        
+      )}
+      {isPreviewPopupVisible && selectedInvoice && (
+        <div className={styles.popup}>
+          <div className={styles.popupContent}>
+            <button className={styles.closeButton} onClick={handleClosePopup}>
+              &times;
+            </button>
+            <h2>Detail Invoice No. {selectedInvoice.invoice_number}</h2>
+            <hr />
+
+            <div className={styles.invoiceDetails}>
+            <table className={styles.detailTable}>
+                <tbody>
+                  <tr>
+                    <td><strong>Invoice Date</strong></td>
+                    <td>{formatDate(selectedInvoice.invoice_date)}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Client Name</strong></td>
+                    <td>{selectedInvoice.client_name}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Client Address</strong></td>
+                    <td>{selectedInvoice.client_address}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Forwarding Vessel</strong></td>
+                    <td>{selectedInvoice.forwarding_vessel}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Port of Discharge</strong></td>
+                    <td>{selectedInvoice.port_of_discharge}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Port of Loading</strong></td>
+                    <td>{selectedInvoice.port_of_loading}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Bill Lading</strong></td>
+                    <td>{selectedInvoice.bill_lading}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Shipper</strong></td>
+                    <td>{selectedInvoice.shipper}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Consignee</strong></td>
+                    <td>{selectedInvoice.consignee}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Measurement</strong></td>
+                    <td>{selectedInvoice.measurement}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Cargo Description</strong></td>
+                    <td>{selectedInvoice.cargo_description}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>ETD</strong></td>
+                    <td>{formatDate(selectedInvoice.etd)}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>ETA</strong></td>
+                    <td>{formatDate(selectedInvoice.eta)}</td>
+                  </tr>
+
+                </tbody>
+              </table>
+
+              <hr className="my-4"/>
+
+              <h4>Charges</h4>
+              <table className={styles.detailTable}>
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedInvoice.charges.map((charge, index) => (
+                    <tr key={index}>
+                      <td>{charge.description}</td>
+                      <td>{formatCurrency(charge.amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <br/>
+              <div className="text-right mt-2">
+                <strong>Total Amount:</strong> Rp {formatCurrency(calculateTotalAmount(selectedInvoice.charges))}
+              </div>
+
+              <hr className="my-4"/>
+
+              <h4>Email Access</h4>
+              <ul>
+                {selectedInvoice.access_email && selectedInvoice.access_email.map((email, index) => (
+                  <li key={index}>{email.email}</li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>

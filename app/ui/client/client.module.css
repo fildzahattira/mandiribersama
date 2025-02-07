@@ -19,7 +19,7 @@
 
 /* Gaya untuk judul */
 .title {
-    margin-bottom: 20px;
+    /* margin-bottom: 20px; */
     font-size: 1.5rem; /* Ukuran font lebih kecil untuk HP */
     color: #333;
 }
@@ -140,4 +140,10 @@
         padding: 8px;
         font-size: 0.9rem;
     }
+}
+
+.logo {
+    width: 90%;  /* Sesuaikan ukuran logo */
+    height: auto;  /* Biarkan tinggi menyesuaikan */
+    margin-bottom: 20px;
 }

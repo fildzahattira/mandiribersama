@@ -129,6 +129,8 @@ const Sidebar = () => {
 
   return (
     <div className={styles.container}>
+        <img src="/logo_polos.png" alt="CV. Mandiri Bersama" className={styles.logo} />
+      
       <div className={styles.user}>
         <MdOutlineAccountCircle className={styles.accountIcon} />
         <div className={styles.userDetail}>
