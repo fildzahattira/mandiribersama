@@ -53,3 +53,8 @@
     margin-left: 10px;
   }
   
+  .logo {
+    width: 90%;  /* Sesuaikan ukuran logo */
+    height: auto;  /* Biarkan tinggi menyesuaikan */
+    margin-bottom: 20px;
+}

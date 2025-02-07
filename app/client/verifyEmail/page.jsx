@@ -51,7 +51,10 @@ export default function VerifyEmail() {
 
     return (
         <div className={styles.container}>
-            <h1 className={styles.title}>Insert Your Email</h1>
+        <img src="/logo_polos.png" alt="CV. Mandiri Bersama" className={styles.logo} />
+
+            <h1 className={styles.title}>Insert your registered email.</h1>
+            <br />
             <form onSubmit={handleSubmit} className={styles.form}>
                 <input
                     type="email"

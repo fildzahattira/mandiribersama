@@ -101,3 +101,21 @@
 .submitBtn:hover {
     background-color: rgb(234, 172, 90)
 }
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Dua kolom dengan ukuran yang sama */
+    gap: 20px; /* Jarak antar kolom */
+  }
+  
+  .gridItem {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Jarak antar input dalam satu gridItem */
+  }
+  
+  @media (max-width: 768px) {
+    .gridContainer {
+        grid-template-columns: 1fr; /* Menjadi satu kolom di layar kecil */
+    }
+  }

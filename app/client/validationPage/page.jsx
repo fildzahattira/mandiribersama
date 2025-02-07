@@ -50,6 +50,8 @@ export default function ValidationPage() {
 
     return (
         <div className={styles.container}>
+        <img src="/logo_polos.png" alt="CV. Mandiri Bersama" className={styles.logo} />
+
             <MdCheckCircle className={styles.icon} />
             <h1 className={styles.title}>Invoice Valid</h1>
             <p>This invoice created by CV. Mandiri Bersama</p>

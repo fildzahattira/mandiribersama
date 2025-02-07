@@ -44,9 +44,9 @@
   .formContainer input[type="email"]:focus,
   .formContainer input[type="password"]:focus,
   .formContainer select:focus {
-    border-color: #007bff;
+    border-color: black;
     outline: none;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    box-shadow: 0 0 5px black(0, 123, 255, 0.5);
   }
   
   .formContainer button[type="submit"] {
