@@ -18,7 +18,21 @@ const ListInvoice = () => {
   const [currentPage, setCurrentPage] = useState(1); // State untuk halaman saat ini
   const [itemsPerPage] = useState(15); // Jumlah item per halaman
   
+  useEffect(() => {
+    const fetchAdminData = async () => {
+      try {
+        const response = await fetch("/api/auth", { credentials: "include" });
+        if (!response.ok) throw new Error("Failed to fetch user data");
 
+        const data = await response.json();
+        setAdminRole(data.admin_role); // Simpan role dari API ke state
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchAdminData();
+  }, []);
 
   // Fungsi untuk memformat mata uang
   const formatCurrency = (value) => {
@@ -29,7 +43,7 @@ const ListInvoice = () => {
   useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const response = await fetch(`/api/invoice?action=is_list`); // Panggil API untuk mendapatkan daftar invoice
+        const response = await fetch(`/api/invoice?action=is_list`); 
         const data = await response.json();
   
         const sortedInvoices = data.sort((a, b) => {
@@ -46,21 +60,7 @@ const ListInvoice = () => {
     fetchInvoices(); 
   }, []);
 
-  useEffect(() => {
-    const fetchAdminData = async () => {
-      try {
-        const response = await fetch("/api/auth", { credentials: "include" });
-        if (!response.ok) throw new Error("Failed to fetch user data");
 
-        const data = await response.json();
-        setAdminRole(data.admin_role); // Simpan role dari API ke state
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchAdminData();
-  }, []);
 
   // Fungsi untuk memfilter invoice berdasarkan kata kunci
   const filteredInvoices = invoices.filter((invoice) => {

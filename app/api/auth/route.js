@@ -1,4 +1,3 @@
-// api/auth.js
 import { createConnection } from "app/lib/db";
 import { sign, verify } from "jsonwebtoken";
 import { NextResponse } from "next/server";
@@ -28,7 +27,6 @@ export async function POST(req) {
   }
 
   
-      // Verifikasi password menggunakan bcrypt.compare
       const passwordMatch = await bcrypt.compare(password, admin.admin_password);
   
   if (!passwordMatch) {
@@ -64,7 +62,6 @@ export async function GET(req) {
       "SELECT admin_id, admin_name, admin_role FROM admin WHERE admin_id = ?",
       [userId]
     );
-    // await connection.end(); // Tutup koneksi setelah selesai
 
     if (user.length === 0) {
       console.error("User not found");
@@ -80,7 +77,6 @@ export async function GET(req) {
 
 export async function PUT(req) {
   try {
-    // 1. Otentikasi dan Verifikasi Token
     const token = req.cookies.get("token")?.value;
     if (!token) {
       return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
@@ -89,10 +85,8 @@ export async function PUT(req) {
     const decoded = verify(token, JWT_SECRET);
     const userId = decoded.id;
 
-    // 2. Ambil Data dari Request Body
     const { current_password, new_password, confirm_password } = await req.json();
 
-    // 3. Validasi Input (Penting!)
     if (!current_password || !new_password || !confirm_password) {
       return new NextResponse(JSON.stringify({ error: "All fields are required" }), { status: 400 });
     }
@@ -101,12 +95,9 @@ export async function PUT(req) {
       return new NextResponse(JSON.stringify({ error: "New password and confirm password do not match" }), { status: 400 });
     }
 
-    // Tambahkan validasi lain sesuai kebutuhan (misalnya, panjang password, kompleksitas password, dll.)
 
-    // 4. Koneksi ke Database
     const connection = await createConnection();
 
-    // 5. Verifikasi Password Lama
     const [user] = await connection.query("SELECT admin_password FROM admin WHERE admin_id = ?", [userId]);
 
     if (user.length === 0) {
@@ -119,15 +110,11 @@ export async function PUT(req) {
       return new NextResponse(JSON.stringify({ error: "Incorrect current password" }), { status: 401 });
     }
 
-    // 6. Hash Password Baru
     const hashedPassword = await bcrypt.hash(new_password, SALT_ROUNDS);
 
-    // 7. Update Password di Database
     await connection.query("UPDATE admin SET admin_password = ? WHERE admin_id = ?", [hashedPassword, userId]);
 
-    // await connection.end(); // Tutup koneksi database
 
-    // 8. Kirim Respon Sukses
     return new NextResponse(JSON.stringify({ message: "Password updated successfully" }), { status: 200 });
   } catch (error) {
     console.error("Error changing password:", error);

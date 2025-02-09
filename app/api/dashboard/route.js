@@ -1,46 +1,62 @@
 import { createConnection } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const admin_id = searchParams.get('admin_id');
     const db = await createConnection();
 
-    // Query untuk menghitung total invoice
+    // Queries for all users (Super Admin view)
     const [totalInvoices] = await db.query('SELECT COUNT(*) AS total FROM invoice WHERE is_approve = TRUE');
-
-    // Query untuk menghitung invoice aktif (is_deleted = FALSE)
     const [activeInvoices] = await db.query('SELECT COUNT(*) AS active FROM invoice WHERE is_deleted = FALSE AND is_approve = TRUE');
-
-    // Query untuk menghitung invoice yang dihapus (is_deleted = TRUE)
     const [deletedInvoices] = await db.query('SELECT COUNT(*) AS deleted FROM invoice WHERE is_deleted = TRUE AND is_approve = TRUE');
-
-    // Query untuk menghitung total user
     const [totalUsers] = await db.query('SELECT COUNT(*) AS totalUsers FROM admin');
-
-    // Query untuk menghitung admin yang aktif (is_active = TRUE)
     const [activeAdmins] = await db.query('SELECT COUNT(*) AS activeAdmins FROM admin WHERE is_active = TRUE');
-
-    // Query untuk menghitung admin yang tidak aktif (is_active = FALSE)
     const [inactiveAdmins] = await db.query('SELECT COUNT(*) AS inactiveAdmins FROM admin WHERE is_active = FALSE');
-
+    const [needApproveInvoices] = await db.query('SELECT COUNT(*) AS needApprove FROM invoice WHERE is_deleted = FALSE AND is_approve = FALSE');
+    
+    // Monthly invoices query (for Super Admin)
     const [monthlyInvoices] = await db.query(`
       SELECT 
-        DATE_FORMAT(invoice_date, '%Y-%m') AS month, 
-        COUNT(*) AS count 
-      FROM invoice 
-      GROUP BY month 
+        DATE_FORMAT(invoice_date, '%Y-%m') AS month,
+        COUNT(*) AS count
+      FROM invoice
+      GROUP BY month
       ORDER BY month ASC
     `);
 
+    // Queries for specific admin (Admin view)
+    const [totalInvoicesByRoleAdmin] = await db.query(
+      'SELECT COUNT(*) AS total FROM invoice WHERE is_approve = TRUE AND admin_id = ?',
+      [admin_id]
+    );
+    const [activeInvoicesByRoleAdmin] = await db.query(
+      'SELECT COUNT(*) AS active FROM invoice WHERE is_deleted = FALSE AND is_approve = TRUE AND admin_id = ?',
+      [admin_id]
+    );
+    const [deletedInvoicesByRoleAdmin] = await db.query(
+      'SELECT COUNT(*) AS deleted FROM invoice WHERE is_deleted = TRUE AND is_approve = TRUE AND admin_id = ?',
+      [admin_id]
+    );
+    const [needApproveInvoicesByRoleAdmin] = await db.query(
+      'SELECT COUNT(*) AS needApprove FROM invoice WHERE is_deleted = FALSE AND is_approve = FALSE AND admin_id = ?',
+      [admin_id]
+    );
 
     return NextResponse.json({
-      totalInvoices: totalInvoices[0].total, // Total semua invoice
-      activeInvoices: activeInvoices[0].active, // Invoice aktif
-      deletedInvoices: deletedInvoices[0].deleted, // Invoice yang dihapus
-      totalUsers: totalUsers[0].totalUsers, // Total admin
-      activeAdmins: activeAdmins[0].activeAdmins, // Admin aktif
-      inactiveAdmins: inactiveAdmins[0].inactiveAdmins, // Admin tidak aktif
+      totalInvoices: totalInvoices[0].total,
+      activeInvoices: activeInvoices[0].active,
+      deletedInvoices: deletedInvoices[0].deleted,
+      totalUsers: totalUsers[0].totalUsers,
+      activeAdmins: activeAdmins[0].activeAdmins,
+      inactiveAdmins: inactiveAdmins[0].inactiveAdmins,
+      needApproveInvoices: needApproveInvoices[0].needApprove,
       monthlyInvoices,
+      totalInvoicesByRoleAdmin: totalInvoicesByRoleAdmin[0].total,
+      activeInvoicesByRoleAdmin: activeInvoicesByRoleAdmin[0].active,
+      deletedInvoicesByRoleAdmin: deletedInvoicesByRoleAdmin[0].deleted,
+      needApproveInvoicesByRoleAdmin: needApproveInvoicesByRoleAdmin[0].needApprove,
     });
   } catch (error) {
     console.error('Error fetching dashboard data:', error);

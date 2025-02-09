@@ -29,6 +29,11 @@
     padding: 10px;
 }
 
+.table thead td {
+  font-weight: bold;
+}
+
+
 .invoiceNumber {
     display: flex;
     align-items: center;
