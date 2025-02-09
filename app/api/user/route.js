@@ -7,7 +7,7 @@ const SALT_ROUNDS = 10;
 export async function GET() {
     try {
         const db = await createConnection();
-        const sql = "SELECT admin_id, admin_name, admin_email, is_active FROM admin";
+        const sql = "SELECT admin_id, admin_name, admin_email, admin_role, is_active FROM admin";
         const [admin] = await db.query(sql);
         return NextResponse.json(admin);
     } catch (error) {

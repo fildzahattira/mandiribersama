@@ -23,7 +23,12 @@ const ArchiveInvoice = () => {
       try {
         const response = await fetch(`/api/invoice?action=is_deleted`);
         const data = await response.json();
-        setInvoices(data);
+
+        const sortedInvoices = data.sort((a, b) => {
+          return a.invoice_number.localeCompare(b.invoice_number);
+        });
+
+        setInvoices(sortedInvoices);
       } catch (error) {
         console.error('Error fetching archived invoices:', error);
       }

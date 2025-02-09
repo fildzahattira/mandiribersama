@@ -20,7 +20,10 @@ const ApproveInvoice = () => {
       try {
         const response = await fetch(`/api/invoice?action=is_approve`);
         const data = await response.json();
-        setInvoices(data);
+        const sortedInvoices = data.sort((a, b) => {
+          return a.invoice_number.localeCompare(b.invoice_number);
+        });
+        setInvoices(sortedInvoices);
       } catch (error) {
         console.error('Error fetching need approve invoices:', error);
       }
@@ -120,7 +123,7 @@ const ApproveInvoice = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredInvoices.map((invoice) => (
+          {currentInvoices.map((invoice) => (
             <tr key={invoice.invoice_number}>
               <td>{invoice.invoice_number}</td>
               <td>{invoice.client_name}</td>

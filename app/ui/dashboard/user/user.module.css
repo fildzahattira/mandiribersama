@@ -28,6 +28,12 @@
     padding: 10px;
 }
 
+.table thead td {
+    font-weight: bold;
+}
+
+
+
 .user {
     display: flex;
     align-items: center;

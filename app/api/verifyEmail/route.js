@@ -25,8 +25,11 @@ export async function POST(request) {
 
             // Send OTP to the user's email
             const subject = `OTP for Invoice Validation - Invoice Number ${invoice_number}`;
-            const text = `Your OTP is: ${otp}. This code is valid for 1 minute.\n\nBest regards,\nCV. Mandiri Bersama`;
+            const text = `Dear Client,\nThank you for using CV. Mandiri Bersama's secure invoice validation system.\n\nYour OTP Code: ${otp}\n\nPlease note that this code is valid for only 1 minute.\n\nIf you did not request this OTP or encounter any issues, please contact our support team immediately.\n\nFor your security, do not share this code with anyone.\n\nThank you,\nCV. Mandiri Bersama\nCustomer Support +6231-73690229
+            `;
+
             await sendEmail(email, subject, text);
+
 
             return NextResponse.json({ success: true });
         } else {

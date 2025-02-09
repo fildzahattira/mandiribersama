@@ -3,10 +3,15 @@ import { useEffect, useState } from 'react';
 import styles from "@/app/ui/dashboard/user/user.module.css";
 import Search from "@/app/ui/dashboard/search/search";
 import Link from "next/link";
+import Pagination from "@/app/ui/dashboard/pagination/pagination";
+
 
 const ListUser = () => {
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1); // State untuk halaman saat ini
+  const [itemsPerPage] = useState(10); // Jumlah item per halaman
+
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -26,6 +31,17 @@ const ListUser = () => {
     user.admin_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     user.admin_email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+     // Hitung total halaman
+     const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+     // Ambil data untuk halaman saat ini
+     const indexOfLastItem = currentPage * itemsPerPage;
+     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+     const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
+     const handlePageChange = (page) => {
+       setCurrentPage(page);
+     };
 
   const toggleUserStatus = async (admin_id, is_active) => {
     try {
@@ -68,14 +84,16 @@ const ListUser = () => {
           <tr>
             <td>Name</td>
             <td>Email</td>
+            <td>Role</td>
             <td>Status</td>
           </tr>
         </thead>
         <tbody>
-          {filteredUsers.map((user) => (
+          {currentUsers.map((user) => (
             <tr key={user.admin_id}>
               <td>{user.admin_name}</td>
               <td>{user.admin_email}</td>
+              <td>{user.admin_role}</td>
               <td>
                 <button
                   className={`${styles.statusButton} ${user.is_active ? styles.active : styles.inactive}`}
@@ -88,6 +106,11 @@ const ListUser = () => {
           ))}
         </tbody>
       </table>
+      <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={handlePageChange}
+    />
     </div>
   );
 };
