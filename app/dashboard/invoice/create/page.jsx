@@ -80,6 +80,7 @@ const CreateInvoice = () => {
             eta: document.getElementById('eta').value,
             admin_id: adminId,
             is_approve: false,
+            is_reject: false,
             charges,
             emails,
         };

@@ -61,6 +61,40 @@
 .preview{
   background-color: #143D60;
 }
+.reject{
+  background-color: rgb(207, 7, 7);
+}
+
+.rejectedRow td {
+  color: red;
+  /* font-weight: bold; */
+}
+
+.yellowText {
+  color: rgb(168, 168, 3);
+  font-weight: bold;
+}
+
+.redText {
+  color: red;
+  font-weight: bold;
+}
+
+.orangeText {
+  color: orange;
+  font-weight: bold;
+}
+
+.blueText {
+  color: blue;
+  font-weight: bold;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 
 /* .delete {
     background-color: crimson;

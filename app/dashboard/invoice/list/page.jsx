@@ -40,25 +40,33 @@ const ListInvoice = () => {
   };
 
   // Fetch data invoice dari API
-  useEffect(() => {
+useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        const response = await fetch(`/api/invoice?action=is_list`); 
+        // Only proceed if adminRole has been set
+        if (!adminRole) return;
+
+        // Choose endpoint based on role
+        const endpoint = adminRole === 'Super Admin' 
+          ? '/api/invoice?action=is_list'
+          : '/api/invoice?action=is_list_admin';
+
+        const response = await fetch(endpoint);
         const data = await response.json();
-  
+    
         const sortedInvoices = data.sort((a, b) => {
           return a.invoice_number.localeCompare(b.invoice_number);
         });
-  
-        setInvoices(sortedInvoices); 
-        console.log('Fetched and Sorted Invoices:', sortedInvoices); 
+    
+        setInvoices(sortedInvoices);
+        console.log('Fetched and Sorted Invoices:', sortedInvoices);
       } catch (error) {
-        console.error('Error fetching invoices:', error); 
+        console.error('Error fetching invoices:', error);
       }
     };
 
-    fetchInvoices(); 
-  }, []);
+    fetchInvoices();
+  }, [adminRole]);
 
 
 
@@ -239,6 +247,17 @@ const ListInvoice = () => {
     }
   };
 
+  const getInvoiceStatus = (invoice) => {
+    if (invoice.is_deleted === 1 && invoice.is_approve === 1) {
+      return { status: "Archived", className: styles.orangeText };
+    } else if (invoice.is_deleted === 1 && invoice.is_reject === 1) {
+      return { status: "Rejected", className: styles.redText };
+    } else if (invoice.is_deleted === 0 && invoice.is_approve === 0 && invoice.is_reject === 0) {
+      return { status: "Pending", className: styles.yellowText };
+    } else {
+      return { status: "Approved", className: styles.blueText }; // Tidak ada class khusus untuk status "Active"
+    }
+  };
 
 
   return (
@@ -258,37 +277,45 @@ const ListInvoice = () => {
             <td>Invoice Number</td>
             <td>Client Name</td>
             <td>Total Amount</td>
+            <td>Status</td>
             <td>Preview</td>
             <td>Action</td>
           </tr>
         </thead>
         <tbody>
-          {currentInvoices.map((invoice) => (
-            <tr key={invoice.invoice_number}>
-              <td>{invoice.invoice_number}</td>
-              <td>{invoice.client_name}</td>
-              <td>Rp {formatCurrency(invoice.total_amount)}</td>
-              <td>
-                <button
-                  className={`${styles.button} ${styles.preview}`}
-                  onClick={() => handlePreviewClick(invoice)}
-                >
-                  See Preview
-                </button>
-              </td>
-              <td>
-                <div className={styles.buttons}>
-                  <button
-                    className={`${styles.button} ${styles.detail}`}
-                    onClick={() => handleDetailClick(invoice)}
-                  >
-                    Detail
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
+  {currentInvoices.map((invoice) => {
+    const { status, className } = getInvoiceStatus(invoice); // Ambil status dan class CSS
+    const isDisabled = status === "Archived" || status === "Pending" || status === "Rejected"; // Tentukan apakah tombol "Detail" dinonaktifkan
+
+    return (
+      <tr key={invoice.invoice_number}>
+        <td>{invoice.invoice_number}</td>
+        <td>{invoice.client_name}</td>
+        <td>Rp {formatCurrency(invoice.total_amount)}</td>
+        <td className={className}>{status}</td> {/* Tampilkan status dengan class CSS */}
+        <td>
+          <button
+            className={`${styles.button} ${styles.preview}`}
+            onClick={() => handlePreviewClick(invoice)}
+          >
+            See Preview
+          </button>
+        </td>
+        <td>
+          <div className={styles.buttons}>
+            <button
+              className={`${styles.button} ${styles.detail}`}
+              onClick={() => handleDetailClick(invoice)}
+              disabled={isDisabled} // Nonaktifkan tombol jika status tertentu
+            >
+              Detail
+            </button>
+          </div>
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
       </table>
 
           <Pagination
@@ -343,7 +370,7 @@ const ListInvoice = () => {
                 Download Invoice
               </button>
               <button onClick={() => handleSoftDelete(selectedInvoice.invoice_id)} className={styles.deleteButton} disabled={adminRole === 'Admin'}  title={adminRole === "Admin" ? "Super Admin Only" : ""}>
-                Delete Invoice
+                Archive Invoice
               </button>
             </div>
           </div>
