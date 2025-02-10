@@ -18,7 +18,12 @@ const ListUser = () => {
       try {
         const response = await fetch('/api/user');
         const data = await response.json();
-        setUsers(data);
+
+        const sortedUsers = data.sort((a,b) => {
+          return a.admin_name.localeCompare(b.admin_name);
+        });
+
+        setUsers(sortedUsers);
       } catch (error) {
         console.error('Error fetching users:', error);
       }
