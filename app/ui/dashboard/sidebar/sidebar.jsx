@@ -69,16 +69,17 @@ const menuItems = [
         icon: <FaListUl />,
         restricted: true, 
       },
+      {
+        title: "Change My Password",
+        path: "/dashboard/user/changePassword",
+        icon: <MdOutlinePassword />,
+      },
     ],
   },
   {
     title: "Others",
     list: [
-      {
-        title: "Change Password",
-        path: "/dashboard/user/changePassword",
-        icon: <MdOutlinePassword />,
-      },
+      
       {
         title: "Logout",
         path: "/logout",
@@ -143,13 +144,9 @@ const Sidebar = () => {
           <li key={cat.title}>
             <span className={styles.cat}>{cat.title}</span>
             {cat.list.map((item) => {
+              // Jika item restricted dan role adalah Admin, jangan render menu tersebut
               if (item.restricted && user.role === "Admin") {
-                return ( 
-                  <div key={item.title} className={styles.disabledLink}>
-                    {item.icon}
-                    <span>{item.title} (Super Admin Only)</span>
-                  </div>
-                );
+                return null;
               }
               return (
                 <MenuLink

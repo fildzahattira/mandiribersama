@@ -8,23 +8,22 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const invoiceId = searchParams.get('invoice_id'); // Mengambil invoice_id dari query parameter
-  const action = searchParams.get('action'); // Parameter untuk membedakan aksi (view_active, view_archived)
-  const token = request.cookies.get('token')?.value; // Ambil token dari cookies
-  
+  const invoiceId = searchParams.get("invoice_id");
+  const action = searchParams.get("action");
+  const token = request.cookies.get("token")?.value;
+
   if (!token) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
   try {
     const db = await createConnection();
-
-    // Verifikasi token untuk mendapatkan role dan admin_id
     const decoded = verify(token, JWT_SECRET);
     const adminId = decoded.id;
     const adminRole = decoded.role;
 
     if (invoiceId) {
-      // Jika ada invoice_id, fetch detail invoice seperti sebelumnya
+      // Fetch invoice details
       const invoiceSql = `
         SELECT 
           i.invoice_id,
@@ -52,10 +51,10 @@ export async function GET(request) {
       const [invoiceData] = await db.query(invoiceSql, [invoiceId]);
 
       if (invoiceData.length === 0) {
-        return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
+        return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
       }
 
-      // Fetch charges and emails as usual
+      // Fetch charges and emails
       const chargesSql = `
         SELECT 
           description,
@@ -77,7 +76,7 @@ export async function GET(request) {
       `;
       const [emailData] = await db.query(emailSql, [invoiceId]);
 
-      // Format and return invoice data
+      // Format response
       const formattedInvoice = {
         invoice_id: invoiceData[0].invoice_id,
         invoice_number: invoiceData[0].invoice_number,
@@ -96,8 +95,8 @@ export async function GET(request) {
         eta: invoiceData[0].eta,
         qr_code: invoiceData[0].qr_code,
         admin_id: invoiceData[0].admin_id,
-        access_email: emailData.map(row => ({ email: row.email })),
-        charges: chargesData.map(row => ({
+        access_email: emailData.map((row) => ({ email: row.email })),
+        charges: chargesData.map((row) => ({
           description: row.description,
           amount: row.amount,
         })),
@@ -105,47 +104,50 @@ export async function GET(request) {
 
       return NextResponse.json(formattedInvoice);
     } else {
-      // Jika tidak ada invoice_id, fetch invoices berdasarkan role admin
+      // Fetch invoices based on action
       let sql = `
         SELECT 
           invoice.invoice_id, 
           invoice.invoice_number, 
           invoice.client_name, 
           SUM(detail_invoice.amount) AS total_amount,
-          admin.admin_name
+          admin.admin_name,
+          invoice.is_reject,
+          invoice.is_approve,
+          invoice.is_deleted
         FROM 
           invoice
         LEFT JOIN 
           detail_invoice ON invoice.invoice_id = detail_invoice.invoice_id
         LEFT JOIN 
           admin ON invoice.admin_id = admin.admin_id
-        WHERE
-          invoice.is_deleted = ? AND invoice.is_approve = ?
       `;
 
-      let isDeleted = false; 
-      let isApprove = true;
+      let queryParams = [];
 
-      if (action === 'is_deleted') {
-        isDeleted = true && isApprove; 
-      } else if (action === 'is_list') {
-        isDeleted = false && isApprove; 
-      } else if (action === 'is_approve') {
-        isApprove = false;
+      if (action === "is_deleted") {
+        sql += ` WHERE invoice.is_deleted = true`; // Menampilkan semua is_deleted = true tanpa mempedulikan is_approve dan is_reject
+      } else if (action === "is_list") {
+        sql += ` WHERE invoice.is_deleted = false AND invoice.is_approve = true`;
+      } else if (action === "is_approve") {
+        sql += ` WHERE invoice.is_deleted = false AND invoice.is_approve = false AND invoice.is_reject = false`;
+      }  else if (action === "is_list_admin") {
+        // sql += ` WHERE invoice.is_deleted = false`;
+        sql += ` WHERE 1=1`;
       } else {
-        // Default case: action not provided or invalid
-        return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+        return NextResponse.json({ error: "Invalid action" }, { status: 400 });
       }
 
-      // Tambahkan kondisi berdasarkan role admin
-      if (adminRole === 'Admin') {
+      // Jika role admin, filter berdasarkan admin_id
+      if (adminRole === "Admin") {
         sql += ` AND invoice.admin_id = ?`;
+        queryParams.push(adminId);
       }
 
       sql += ` GROUP BY invoice.invoice_id, invoice.invoice_number, invoice.client_name;`;
 
-      // Eksekusi query dengan parameter yang sesuai
-      const [invoices] = await db.query(sql, [isDeleted, isApprove, adminId]);
+      // Eksekusi query
+      const [invoices] = await db.query(sql, queryParams);
 
       return NextResponse.json(invoices);
     }
@@ -156,13 +158,14 @@ export async function GET(request) {
 }
 
 
+
 export async function POST(request) {
   let db;
   try {
       const {
           invoice_date, client_name, client_address, forwarding_vessel,
           port_of_discharge, port_of_loading, bill_lading, shipper,
-          consignee, measurement, cargo_description, etd, eta, admin_id, is_approve,
+          consignee, measurement, cargo_description, etd, eta, admin_id, is_approve, is_reject,
           charges, emails
       } = await request.json();
 
@@ -189,12 +192,12 @@ export async function POST(request) {
           INSERT INTO invoice 
           (invoice_id, invoice_number, invoice_date, client_name, client_address, forwarding_vessel, 
           port_of_discharge, port_of_loading, bill_lading, shipper, consignee, 
-          measurement, cargo_description, etd, eta, admin_id, is_approve) 
-          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+          measurement, cargo_description, etd, eta, admin_id, is_approve, is_reject) 
+          VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
       const [result] = await db.execute(sqlInvoice, [
           invoiceId, invoiceNumber, invoice_date, client_name, client_address, forwarding_vessel,
           port_of_discharge, port_of_loading, bill_lading, shipper, consignee,
-          measurement, cargo_description, etd, eta, admin_id, is_approve
+          measurement, cargo_description, etd, eta, admin_id, is_approve, is_reject
       ]);
 
       // Insert charges dengan UUID
@@ -251,8 +254,7 @@ export async function PUT(request) {
         return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
       }
     } else if (action === 'restore') {
-      // Logika untuk restore invoice
-      const sql = 'UPDATE invoice SET is_deleted = FALSE WHERE invoice_id = ?';
+      const sql = 'UPDATE invoice SET is_deleted = FALSE, is_reject = FALSE WHERE invoice_id = ?';
       const [result] = await db.query(sql, [invoiceId]);
 
       if (result.affectedRows > 0) {
@@ -261,8 +263,7 @@ export async function PUT(request) {
         return NextResponse.json({ error: 'Invoice not found or already active' }, { status: 404 });
       }
     } else if (action === 'approve') {
-      // Logika untuk restore invoice
-      const sql = 'UPDATE invoice SET is_approve = TRUE WHERE invoice_id = ?';
+      const sql = 'UPDATE invoice SET is_approve = TRUE, is_reject = FALSE WHERE invoice_id = ?';
       const [result] = await db.query(sql, [invoiceId]);
 
       if (result.affectedRows > 0) {
@@ -270,7 +271,17 @@ export async function PUT(request) {
       } else {
         return NextResponse.json({ error: 'Invoice not found or already approve' }, { status: 404 });
       }
-    } else if (action === 'add_email') {
+    } else if (action === 'reject') {
+      const sql = 'UPDATE invoice SET is_reject = TRUE, is_approve = FALSE, is_deleted = TRUE WHERE invoice_id = ?';
+      const [result] = await db.query(sql, [invoiceId]);
+
+      if (result.affectedRows > 0) {
+        return NextResponse.json({ message: 'Invoice rejected successfully' });
+      } else {
+        return NextResponse.json({ error: 'Invoice not found or already reject' }, { status: 404 });
+      }
+    } 
+    else if (action === 'add_email') {
       // Logika untuk menambahkan email baru
       const { email } = await request.json(); // Ambil email baru dari body request
 

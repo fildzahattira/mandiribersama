@@ -128,7 +128,7 @@ const ArchiveInvoice = () => {
         </thead>
         <tbody>
           {currentInvoices.map((invoice) => (
-            <tr key={invoice.invoice_number}>
+            <tr key={invoice.invoice_number} className={invoice.is_reject ? styles.rejectedRow : ''}>
               <td>{invoice.invoice_number}</td>
               <td>{invoice.client_name}</td>
               <td>Rp {formatCurrency(invoice.total_amount)}</td>

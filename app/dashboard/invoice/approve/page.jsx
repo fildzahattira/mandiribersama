@@ -54,6 +54,24 @@ const ApproveInvoice = () => {
     }
   };
 
+  const handleRejectInvoice = async (invoiceId) => {
+    try {
+      const response = await fetch(`/api/invoice?invoice_id=${invoiceId}&action=reject`, {
+        method: 'PUT',
+      });
+
+      if (response.ok) {
+        setInvoices((prevInvoices) => prevInvoices.filter((invoice) => invoice.invoice_id !== invoiceId));
+        alert('Invoice rejected successfully');
+      } else {
+        alert('Failed to reject invoice');
+      }
+    } catch (error) {
+      console.error('Error rejecting invoice:', error);
+      alert('Error occurred while rejecting invoice.');
+    }
+  };
+
   const handleClosePopup = () => {
     setIsPreviewPopupVisible(false);
     setSelectedInvoice(null);
@@ -120,6 +138,7 @@ const ApproveInvoice = () => {
             <td>Admin</td>
             <td>Preview</td>
             <td>Approve</td>
+            <td>Reject</td>
           </tr>
         </thead>
         <tbody>
@@ -143,6 +162,14 @@ const ApproveInvoice = () => {
                   onClick={() => handleApproveInvoice(invoice.invoice_id)}
                 >
                   Approve
+                </button>
+              </td>
+              <td>
+                <button
+                  className={`${styles.button} ${styles.reject}`}
+                  onClick={() => handleRejectInvoice(invoice.invoice_id)}
+                >
+                  Reject
                 </button>
               </td>
             </tr>
