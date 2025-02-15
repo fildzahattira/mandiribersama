@@ -1,7 +1,7 @@
 import { createConnection } from '@/app/lib/db';
 import { NextResponse } from 'next/server';
 import { generateTOTP } from '@/app/utils/totp';
-import { sendEmail } from '@/app/lib/email';
+import { sendEmail } from '@/app/utils/email';
 
 export async function POST(request) {
     const { invoice_id, email } = await request.json();
