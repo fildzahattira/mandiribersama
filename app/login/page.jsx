@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import styles from "@/app/ui/login/login.module.css";
+import Link from "next/link"; // Import Link dari Next.js
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -51,6 +52,9 @@ const LoginPage = () => {
           required
         />
         <button type="submit">Login</button>
+        <div className={styles.forgotPasswordLink}>
+          <Link href="/email_forgotPassword">Forgot Password?</Link>
+        </div>
       </form>
     </div>
   );
