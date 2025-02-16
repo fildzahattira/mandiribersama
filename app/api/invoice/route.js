@@ -126,7 +126,7 @@ export async function GET(request) {
       let queryParams = [];
 
       if (action === "is_deleted") {
-        sql += ` WHERE invoice.is_deleted = true`; // Menampilkan semua is_deleted = true tanpa mempedulikan is_approve dan is_reject
+        sql += ` WHERE invoice.is_deleted = true`; 
       } else if (action === "is_list") {
         sql += ` WHERE invoice.is_deleted = false AND invoice.is_approve = true`;
       } else if (action === "is_approve") {
@@ -175,15 +175,18 @@ export async function POST(request) {
       // Generate UUID untuk invoice_id
       const invoiceId = uuidv4();
 
-      // Generate invoice_number (opsional, bisa disesuaikan)
       const sqlCountInvoices = "SELECT COUNT(*) AS count FROM invoice";
       const [countResult] = await db.query(sqlCountInvoices);
-      const count = countResult[0].count + 1; // Nomor urut invoice dimulai dari 1
+      const count = countResult[0].count + 1; 
       const paddedCount = String(count).padStart(3, '0');
+      
+      
       const clientInitials = client_name
           .split(' ')
+          .filter(word => word.length > 0) 
           .map(word => word[0].toUpperCase())
           .join('');
+      
       const formattedDate = invoice_date.replace(/-/g, '');
       const invoiceNumber = `${paddedCount}/${clientInitials}/${formattedDate}`;
 
@@ -237,8 +240,8 @@ export async function POST(request) {
 }
 export async function PUT(request) {
   const { searchParams } = new URL(request.url);
-  const invoiceId = searchParams.get('invoice_id'); // Mengambil invoice_id dari parameter URL
-  const action = searchParams.get('action'); // Parameter untuk membedakan aksi (soft delete, add_email, atau delete_email)
+  const invoiceId = searchParams.get('invoice_id'); 
+  const action = searchParams.get('action'); 
 
   try {
     const db = await createConnection();
@@ -282,14 +285,12 @@ export async function PUT(request) {
       }
     } 
     else if (action === 'add_email') {
-      // Logika untuk menambahkan email baru
-      const { email } = await request.json(); // Ambil email baru dari body request
+      const { email } = await request.json();
 
       if (!email) {
         return NextResponse.json({ error: 'Email is required' }, { status: 400 });
       }
 
-      // Cek apakah invoice dengan invoice_id tersebut ada
       const sqlCheckInvoice = 'SELECT invoice_id FROM invoice WHERE invoice_id = ?';
       const [invoiceResult] = await db.query(sqlCheckInvoice, [invoiceId]);
 
@@ -297,7 +298,6 @@ export async function PUT(request) {
         return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
       }
 
-      // Cek apakah email baru sudah ada untuk invoice_id tersebut
       const sqlCheckEmail = 'SELECT email FROM access_invoice WHERE invoice_id = ? AND email = ?';
       const [emailResult] = await db.query(sqlCheckEmail, [invoiceId, email]);
 
@@ -305,20 +305,17 @@ export async function PUT(request) {
         return NextResponse.json({ error: 'Email already exists for this invoice' }, { status: 400 });
       }
 
-      // Insert email baru ke tabel access_invoice
       const sqlInsertEmail = 'INSERT INTO access_invoice (invoice_id, email) VALUES (?, ?)';
       await db.query(sqlInsertEmail, [invoiceId, email]);
 
       return NextResponse.json({ message: 'Email added successfully' });
     } else if (action === 'delete_email') {
-      // Logika untuk menghapus email
-      const { email } = await request.json(); // Ambil email yang akan dihapus dari body request
+      const { email } = await request.json(); 
 
       if (!email) {
         return NextResponse.json({ error: 'Email is required' }, { status: 400 });
       }
 
-      // Cek apakah invoice dengan invoice_id tersebut ada
       const sqlCheckInvoice = 'SELECT invoice_id FROM invoice WHERE invoice_id = ?';
       const [invoiceResult] = await db.query(sqlCheckInvoice, [invoiceId]);
 
@@ -326,7 +323,6 @@ export async function PUT(request) {
         return NextResponse.json({ error: 'Invoice not found' }, { status: 404 });
       }
 
-      // Hapus email dari tabel access_invoice
       const sqlDeleteEmail = 'DELETE FROM access_invoice WHERE invoice_id = ? AND email = ?';
       const [deleteResult] = await db.query(sqlDeleteEmail, [invoiceId, email]);
 
