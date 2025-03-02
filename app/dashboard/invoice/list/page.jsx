@@ -7,16 +7,16 @@ import { generatePdf } from 'app/utils/generatePdf';
 import Pagination from "@/app/ui/dashboard/pagination/pagination"
 
 const ListInvoice = () => {
-  const [invoices, setInvoices] = useState([]); // State untuk menyimpan daftar invoice
-  const [selectedInvoice, setSelectedInvoice] = useState(null); // State untuk menyimpan invoice yang dipilih
-  const [isPopupVisible, setIsPopupVisible] = useState(false); // State untuk menampilkan popup
-  const [emailAccess, setEmailAccess] = useState(''); // State untuk input email baru
-  const [searchQuery, setSearchQuery] = useState(''); // State untuk menyimpan kata kunci pencarian
-  const [adminRole, setAdminRole] = useState(''); // State untuk menyimpan role pengguna
+  const [invoices, setInvoices] = useState([]); 
+  const [selectedInvoice, setSelectedInvoice] = useState(null); 
+  const [isPopupVisible, setIsPopupVisible] = useState(false); 
+  const [emailAccess, setEmailAccess] = useState(''); 
+  const [searchQuery, setSearchQuery] = useState(''); 
+  const [adminRole, setAdminRole] = useState(''); 
   const [isPreviewPopupVisible, setIsPreviewPopupVisible] = useState(false);
 
-  const [currentPage, setCurrentPage] = useState(1); // State untuk halaman saat ini
-  const [itemsPerPage] = useState(15); // Jumlah item per halaman
+  const [currentPage, setCurrentPage] = useState(1); 
+  const [itemsPerPage] = useState(10); 
   
   useEffect(() => {
     const fetchAdminData = async () => {
@@ -25,7 +25,7 @@ const ListInvoice = () => {
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const data = await response.json();
-        setAdminRole(data.admin_role); // Simpan role dari API ke state
+        setAdminRole(data.admin_role); 
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -43,7 +43,6 @@ const ListInvoice = () => {
 useEffect(() => {
     const fetchInvoices = async () => {
       try {
-        // Only proceed if adminRole has been set
         if (!adminRole) return;
 
         // Choose endpoint based on role
@@ -75,7 +74,6 @@ useEffect(() => {
     const matchesSearch =
       invoice.invoice_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
       invoice.client_name.toLowerCase().includes(searchQuery.toLowerCase());
-    // console.log('Filtering Invoices:', invoice.invoice_number, matchesSearch); // Debugging
     return matchesSearch;
   });
 
@@ -90,6 +88,7 @@ useEffect(() => {
     setCurrentPage(page);
   };
 
+
   // Fungsi untuk menangani klik tombol "Detail"
   const handleDetailClick = async (invoice) => {
     try {
@@ -98,10 +97,9 @@ useEffect(() => {
       const data = await response.json();
 
       if (response.ok) {
-        setSelectedInvoice(data); // Simpan detail invoice ke state
-        setEmailAccess(''); // Reset input email
-        setIsPopupVisible(true); // Tampilkan popup
-        // console.log('Detail Invoice:', data); // Debugging
+        setSelectedInvoice(data); 
+        setEmailAccess(''); 
+        setIsPopupVisible(true); 
       } else {
         alert('Failed get detail invoice.');
       }
@@ -148,7 +146,6 @@ useEffect(() => {
         const data = await fetchResponse.json();
         setSelectedInvoice(data);
         setEmailAccess(''); // Reset input email
-        // console.log('Email Added:', emailAccess); // Debugging
       } else {
         const errorData = await response.json();
         alert(errorData.error || 'Gagal menambahkan email.');
@@ -207,7 +204,6 @@ useEffect(() => {
         );
         alert('Invoice archived successfully');
         handleClosePopup(); // Tutup popup setelah berhasil menghapus
-        // console.log('Invoice Soft Deleted:', invoiceId); // Debugging
       } else {
         alert('Gagal menghapus invoice');
       }
@@ -220,7 +216,7 @@ useEffect(() => {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Bulan dimulai dari 0
+    const month = String(date.getMonth() + 1).padStart(2, '0'); 
     const year = date.getFullYear();
     return `${day}-${month}-${year}`;
   };
@@ -255,7 +251,7 @@ useEffect(() => {
     } else if (invoice.is_deleted === 0 && invoice.is_approve === 0 && invoice.is_reject === 0) {
       return { status: "Pending", className: styles.yellowText };
     } else {
-      return { status: "Approved", className: styles.blueText }; // Tidak ada class khusus untuk status "Active"
+      return { status: "Approved", className: styles.blueText }; 
     }
   };
 
@@ -274,6 +270,7 @@ useEffect(() => {
       <table className={styles.table}>
         <thead>
           <tr>
+            {/* <td>No</td> */}
             <td>Invoice Number</td>
             <td>Client Name</td>
             <td>Total Amount</td>
@@ -283,12 +280,15 @@ useEffect(() => {
           </tr>
         </thead>
         <tbody>
-  {currentInvoices.map((invoice) => {
-    const { status, className } = getInvoiceStatus(invoice); // Ambil status dan class CSS
-    const isDisabled = status === "Archived" || status === "Pending" || status === "Rejected"; // Tentukan apakah tombol "Detail" dinonaktifkan
+  {currentInvoices.map((invoice, index) => {
+    const { status, className } = getInvoiceStatus(invoice); 
+    const isDisabled = status === "Archived" || status === "Pending" || status === "Rejected"; 
+
+    // const rowNumber = (currentPage - 1) * itemsPerPage + index + 1;
 
     return (
       <tr key={invoice.invoice_number}>
+        {/* <td>{rowNumber}</td> */}
         <td>{invoice.invoice_number}</td>
         <td>{invoice.client_name}</td>
         <td>Rp {formatCurrency(invoice.total_amount)}</td>

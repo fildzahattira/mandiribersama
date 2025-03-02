@@ -45,13 +45,13 @@ const Dashboard = () => {
         // Fixed invoice chart data
         setInvoiceChartData([
           { name: 'Active', value: adminRole === 'Admin' ? data.activeInvoicesByRoleAdmin : data.activeInvoices },
-          { name: 'Need Approve', value: adminRole === 'Admin' ? data.needApproveInvoicesByRoleAdmin : data.needApproveInvoices },
+          { name: 'Approval', value: adminRole === 'Admin' ? data.needApproveInvoicesByRoleAdmin : data.needApproveInvoices },
           { name: 'Archive', value: adminRole === 'Admin' ? data.deletedInvoicesByRoleAdmin : data.deletedInvoices },
         ]);
 
         setUserChartData([
           { name: 'Active', value: data.activeAdmins },
-          { name: 'Non-Active', value: data.inactiveAdmins },
+          { name: 'NonActive', value: data.inactiveAdmins },
         ]);
 
         setMonthlyInvoiceData(data.monthlyInvoices.map(item => ({
