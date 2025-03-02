@@ -19,7 +19,7 @@ export async function POST(request) {
         const [results] = await db.query(sql, [invoice_id, email]);
 
         if (results.length > 0) {
-            const { email, invoice_number } = results[0]; // Destructure email and invoice_number
+            const { email, invoice_number } = results[0]; 
             const secret = process.env.TOTP_SECRET; 
             const otp = generateTOTP(secret);
 
