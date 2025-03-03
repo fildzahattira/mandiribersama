@@ -37,7 +37,7 @@ export default function VerifyEmail() {
             const data = await response.json();
             if (data.success) {
                 // Jika email valid, arahkan ke halaman masukkan OTP
-                router.push(`/client/verifyTOTP?invoice_id=${invoiceId}`);
+                router.push(`/client/verifyTOTP?invoice_id=${invoiceId}&email=${email}`);
             } else {
                 setError(data.error || 'Email tidak valid');
             }

@@ -1,14 +1,26 @@
 import { verifyTOTP } from 'app/utils/totp';
+import cache from 'app/lib/cache'; 
 
 export async function POST(request) {
     try {
-        const { otp } = await request.json(); // Hanya menerima `otp` dari frontend
-        const secret = process.env.TOTP_SECRET; // Ambil `secret` dari environment variable
+        const { otp, invoice_id, email } = await request.json();
+        const secret = process.env.TOTP_SECRET;
 
-        // Validasi input
-        if (!secret || !otp) {
-            return new Response(JSON.stringify({ error: 'Secret key and OTP are required' }), {
+        if (!secret || !otp || !invoice_id || !email) {
+            return new Response(JSON.stringify({ error: 'Missing required fields' }), {
                 status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        const cacheKey = `attempts:${invoice_id}:${email}`;
+        const attempts = cache.get(cacheKey) || 0;
+
+        console.log(`OTP attempts for ${cacheKey}:`, attempts); 
+
+        if (attempts >= 3) {
+            return new Response(JSON.stringify({ error: 'Too many failed attempts. Try again later.' }), {
+                status: 429,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
@@ -16,11 +28,23 @@ export async function POST(request) {
         // Verifikasi OTP
         const isValid = verifyTOTP(secret, otp);
 
-        // Berikan respons
-        return new Response(JSON.stringify({ isValid }), {
+        if (!isValid) {
+            cache.set(cacheKey, attempts + 1, { ttl: 1000 * 60 * 10 }); 
+            console.log(`Failed OTP attempt ${attempts + 1} for ${cacheKey}`);
+            return new Response(JSON.stringify({ isValid: false, error: 'Invalid OTP. Please try again.' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
+        cache.delete(cacheKey);
+        console.log(`OTP verified successfully for ${cacheKey}`);
+
+        return new Response(JSON.stringify({ isValid: true }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });
+
     } catch (error) {
         console.error('Error in verifyOtp:', error);
         return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
