@@ -16,12 +16,24 @@ export default function verifyTOTP() {
         setLoading(true);
         setError('');
     
+        const searchParams = new URLSearchParams(window.location.search);
+        const invoice_id = searchParams.get('invoice_id');
+        const email = searchParams.get('email'); 
+    
+        if (!invoice_id || !email) {
+            setError('Invalid request. Missing invoice or email.');
+            setLoading(false);
+            return;
+        }
+    
         try {
             const response = await fetch('/api/verifyTOTP', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    otp: otp, // Hanya kirim `otp`
+                    otp: otp, 
+                    invoice_id: invoice_id, 
+                    email: email
                 }),
             });
     
@@ -33,8 +45,7 @@ export default function verifyTOTP() {
     
             const data = await response.json();
             if (data.isValid) {
-                // Jika OTP valid, arahkan ke halaman sukses
-                router.push(`/client/validationPage?invoice_id=${invoiceId}`);
+                router.push(`/client/validationPage?invoice_id=${invoice_id}`);
             } else {
                 setError('Invalid OTP. Please try again.');
             }
@@ -46,10 +57,9 @@ export default function verifyTOTP() {
         }
     };
 
-    // Fungsi untuk memastikan hanya angka yang bisa dimasukkan
     const handleOtpChange = (e) => {
         const value = e.target.value;
-        if (/^\d*$/.test(value) && value.length <= 6) { // Hanya angka dan maksimal 6 digit
+        if (/^\d*$/.test(value) && value.length <= 6) { 
             setOtp(value);
         }
     };
@@ -65,7 +75,7 @@ export default function verifyTOTP() {
                     placeholder="XXXXXX"
                     value={otp}
                     onChange={handleOtpChange}
-                    maxLength={6} // Maksimal 6 digit
+                    maxLength={6} 
                     required
                     className={styles.input}
                 />
