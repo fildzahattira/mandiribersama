@@ -6,6 +6,7 @@ import crypto from 'crypto';
 
 const SALT_ROUNDS = 10;
 
+
 export async function POST(request) {
   try {
     const { admin_email, token, new_password } = await request.json();

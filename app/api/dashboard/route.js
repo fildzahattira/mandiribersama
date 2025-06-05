@@ -7,7 +7,7 @@ export async function GET(request) {
     const admin_id = searchParams.get('admin_id');
     const db = await createConnection();
 
-    // Queries for all users (Super Admin view)
+    //super admin
     const [totalInvoices] = await db.query('SELECT COUNT(*) AS total FROM invoice WHERE is_approve = TRUE');
     const [activeInvoices] = await db.query('SELECT COUNT(*) AS active FROM invoice WHERE is_deleted = FALSE AND is_approve = TRUE');
     const [deletedInvoices] = await db.query('SELECT COUNT(*) AS deleted FROM invoice WHERE is_deleted = TRUE AND is_approve = TRUE');
@@ -16,7 +16,7 @@ export async function GET(request) {
     const [inactiveAdmins] = await db.query('SELECT COUNT(*) AS inactiveAdmins FROM admin WHERE is_active = FALSE');
     const [needApproveInvoices] = await db.query('SELECT COUNT(*) AS needApprove FROM invoice WHERE is_deleted = FALSE AND is_approve = FALSE');
     
-    // Monthly invoices query (for Super Admin)
+  
     const [monthlyInvoices] = await db.query(`
       SELECT 
         DATE_FORMAT(invoice_date, '%Y-%m') AS month,
@@ -26,7 +26,7 @@ export async function GET(request) {
       ORDER BY month ASC
     `);
 
-    // Queries for specific admin (Admin view)
+    //admin
     const [totalInvoicesByRoleAdmin] = await db.query(
       'SELECT COUNT(*) AS total FROM invoice WHERE is_approve = TRUE AND admin_id = ?',
       [admin_id]

@@ -3,8 +3,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const invoiceId = searchParams.get('invoice_id'); // Mengambil invoice_id dari query parameter
-
+  const invoiceId = searchParams.get('invoice_id'); 
   try {
     const db = await createConnection();
 
@@ -91,7 +90,6 @@ export async function GET(request) {
 
       return NextResponse.json(formattedInvoice);
     } else {
-      // Jika tidak ada invoice_id, ambil semua invoice
       const sql = `
         SELECT
           invoice.invoice_id, 

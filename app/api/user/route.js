@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 
 const SALT_ROUNDS = 10; 
 
+// get user for list user
 export async function GET() {
     try {
         const db = await createConnection();
@@ -16,6 +17,8 @@ export async function GET() {
     }
 }
 
+
+// create new user
 export async function POST(request) {
     try {
         const { admin_name, admin_email, admin_password, admin_role } = await request.json();
@@ -46,6 +49,7 @@ export async function POST(request) {
     }
 }
 
+// update user active status
 export async function PUT(request) {
     try {
       const { admin_id, is_active } = await request.json();
