@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, LineChart, Cartesian
 import Card from '../ui/dashboard/card/card';
 import styles from "../ui/dashboard/dashboard.module.css";
 
-const COLORS = ['#0088FE', '#FFBB28', '#df2c14']; // Fixed color code
+const COLORS = ['#0088FE', '#FFBB28', '#df2c14']; 
 const USER_COLORS = ['#00C49F', '#FF8042'];
 
 const Dashboard = () => {

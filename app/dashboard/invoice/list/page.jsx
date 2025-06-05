@@ -4,6 +4,7 @@ import Link from 'next/link';
 import styles from '@/app/ui/dashboard/invoice/invoice.module.css';
 import Search from "@/app/ui/dashboard/search/search";
 import { generatePdf } from 'app/utils/generatePdf';
+import { generatePdfSendEmail } from 'app/utils/generatePdfSendEmail';
 import Pagination from "@/app/ui/dashboard/pagination/pagination"
 
 const ListInvoice = () => {
@@ -255,6 +256,52 @@ useEffect(() => {
     }
   };
 
+ 
+
+  const handleSendToEmail = async (email) => {
+    try {
+      // Generate PDF sebagai buffer
+      const pdfBuffer = await generatePdfSendEmail(selectedInvoice, formatCurrency);
+  
+      // Konversi buffer ke base64
+      const pdfBase64 = Buffer.from(pdfBuffer).toString('base64');
+  
+      // Konfigurasi email
+      const mailOptions = {
+        to: email, // Email penerima
+        subject: `Invoice ${selectedInvoice.invoice_number}`, // Subjek email
+        text: `Dear ${selectedInvoice.client_name}, \n\nHere's the invoice with number ${selectedInvoice.invoice_number} attached. \n\nBest Regards,\nCV. Mandiri Bersama`, // Isi email
+        attachments: [
+          {
+            filename: `INVOICE_${selectedInvoice.invoice_number}.pdf`, // Nama file attachment
+            content: pdfBase64, // Gunakan base64 sebagai konten
+            contentType: 'application/pdf', // Tipe konten
+            encoding: 'base64', // Tentukan encoding sebagai base64
+          },
+        ],
+      };
+  
+      // Kirim request ke API Route
+      const response = await fetch('/api/send_email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(mailOptions),
+      });
+  
+      const result = await response.json();
+  
+      if (result.success) {
+        alert('Email sent successfully');
+      } else {
+        alert(result.error || 'Failed to send email.');
+      }
+    } catch (error) {
+      console.error('Error sending email:', error);
+      alert('Failed to send email.');
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -337,17 +384,16 @@ useEffect(() => {
             {/* Tampilkan daftar email yang sudah ada */}
             <h4>Email Access</h4>
             <ul>
-              {selectedInvoice.access_email && selectedInvoice.access_email.map((email, index) => (
-                <li key={index}>
-                  {email.email} &nbsp;
-                  <button
-                    onClick={() => handleDeleteEmail(email.email)}
-                  >
-                    X
-                  </button>
-                </li>
-              ))}
-            </ul>
+            {selectedInvoice.access_email && selectedInvoice.access_email.map((email, index) => (
+              <li key={index}>
+                {email.email} &nbsp;
+                <span style={{ display: "inline-flex", gap: "4px" }}>
+                  <button className={styles.sendToEmailButton} onClick={() => handleSendToEmail(email.email)}>Send</button>
+                  <button onClick={() => handleDeleteEmail(email.email)}>X</button>
+                </span>
+              </li>
+            ))}
+          </ul>
 
             {/* Input untuk menambahkan email baru */}
             {/* <h3>Add new email access</h3> */}
