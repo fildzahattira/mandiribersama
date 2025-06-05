@@ -6,6 +6,7 @@ import bcrypt from 'bcrypt';
 const JWT_SECRET = process.env.JWT_SECRET; 
 const SALT_ROUNDS = 10;
 
+//login
 export async function POST(req) {
  const { username, password } = await req.json();
   
@@ -45,6 +46,7 @@ export async function POST(req) {
   }
   }
 
+//get detail user
 export async function GET(req) {
   try {
     const token = req.cookies.get("token")?.value; 
@@ -71,10 +73,11 @@ export async function GET(req) {
     return NextResponse.json(user[0]);
   } catch (error) {
     console.error("Error in /api/auth:", error);
-    return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 }); // 401 lebih tepat daripada 500 di sini
+    return new NextResponse(JSON.stringify({ error: "Unauthorized" }), { status: 401 }); 
   }
 }
 
+//update password
 export async function PUT(req) {
   try {
     const token = req.cookies.get("token")?.value;

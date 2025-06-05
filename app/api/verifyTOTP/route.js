@@ -6,6 +6,7 @@ export async function POST(request) {
         const { otp, invoice_id, email } = await request.json();
         const secret = process.env.TOTP_SECRET;
 
+        // limitting
         if (!secret || !otp || !invoice_id || !email) {
             return new Response(JSON.stringify({ error: 'Missing required fields' }), {
                 status: 400,
@@ -25,7 +26,7 @@ export async function POST(request) {
             });
         }
 
-        // Verifikasi OTP
+        // OTP verification
         const isValid = verifyTOTP(secret, otp);
 
         if (!isValid) {

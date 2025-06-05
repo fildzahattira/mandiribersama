@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-
+// get invoice
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const invoiceId = searchParams.get("invoice_id");
@@ -158,7 +158,7 @@ export async function GET(request) {
 }
 
 
-
+// post invoice
 export async function POST(request) {
   let db;
   try {
@@ -175,6 +175,7 @@ export async function POST(request) {
       // Generate UUID untuk invoice_id
       const invoiceId = uuidv4();
 
+      // Generate invoice number
       const sqlCountInvoices = "SELECT COUNT(*) AS count FROM invoice";
       const [countResult] = await db.query(sqlCountInvoices);
       const count = countResult[0].count + 1; 
@@ -238,6 +239,8 @@ export async function POST(request) {
       return NextResponse.json({ error: error.message });
   }
 }
+
+// update invoice status, email access, etc
 export async function PUT(request) {
   const { searchParams } = new URL(request.url);
   const invoiceId = searchParams.get('invoice_id'); 
@@ -247,7 +250,6 @@ export async function PUT(request) {
     const db = await createConnection();
 
     if (action === 'soft_delete') {
-      // Logika untuk soft delete
       const sql = 'UPDATE invoice SET is_deleted = TRUE WHERE invoice_id = ?';
       const [result] = await db.query(sql, [invoiceId]);
 
