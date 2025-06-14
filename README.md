@@ -13,9 +13,9 @@ When scanned, the QR code redirects the user to a secure page displaying the inv
 ## Super Admin & Admin Pages
 
 <p align="center">
-  <img src="public/dashboard_superAdmin.png" alt="Super Admin Dashboard" width="200">
-  <img src="public/createInvoicePage.png" alt="Create Invoice Form" width="200">
-  <img src="public/listInvoicePage.png" alt="Admin List Invoice" width="200">
+  <img src="public/dashboard_superAdmin.png" alt="Super Admin Dashboard" width="300">
+  <img src="public/createInvoicePage.png" alt="Create Invoice Form" width="300">
+  <img src="public/listInvoicePage.png" alt="Admin List Invoice" width="300">
 </p>
 
 ## Invoice Document
